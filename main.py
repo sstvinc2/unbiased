@@ -61,7 +61,7 @@ def run():
     sourceList.append(NewsSource('New York Times',
                                  'http://nytimes.com',
                                  ['<a href="'],#'<h1 class="story-heading"><a href="'],#['"b-column column', 'h2 class="story-heading"><a href="'],
-                                 ['<article', '<a href="'],
+                                 ['<article class="story theme-summary"', '<a href="'],
                                  ['<hr class="single-rule"', 'article class="story theme-summary', 'h2 class="story-heading"><a href="'],
                                  '<div class="b-column column">', '<!-- close photo-spot-region -->',
                                  'section id="top-news" class="top-news"', '</div><!-- close a-column -->',
