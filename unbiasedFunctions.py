@@ -86,8 +86,6 @@ def extractURLs(content, source):
         h1=source.url+h1
     h1s.append(h1)
 
-
-
     h2=content
     if source.h2SectionDividerStart!=None:
         h2=h2.split(source.h2SectionDividerStart, 1)[1]
@@ -198,7 +196,13 @@ def buildOutput(newsSourceArr):
         template=template.replace('xxTitle2-'+str(i+1)+'xx', article.title)
         template=template.replace('xxImg2-'+str(i+1)+'xx', article.img)
 
-
+    sourcesStr=''
+    for i in range(len(newsSourceArr)-1):
+        sourcesStr+=newsSourceArr[i].name+', '
+    sourcesStr+=newsSourceArr[-1].name
+    print(sourcesStr)
+    template=template.replace('xxSourcesxx', sourcesStr)
+        
 
     #return updated text
     return template

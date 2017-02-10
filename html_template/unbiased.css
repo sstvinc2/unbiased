@@ -86,3 +86,9 @@
 .middle-story p{
     display:block;
 }
+
+#sources{
+    clear:both;
+    padding-top:4em;
+    font-size:.8em;
+}
