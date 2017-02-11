@@ -109,62 +109,6 @@ def extractURLs(content, source):
         h2s.append(x)
     
 
-
-    
-    '''
-    h2=content.split(source.h2SectionDividerStart, 1)[1]
-    h2=h2.split(source.h2SectionDividerEnd, 1)[0]
-    
-    if source.h2DelStart!=[]:
-        while True:
-            x=h2
-            for delim in source.h2DelStart:
-                if delim in h2:
-                    x=h2.split(delim)[1]
-            x=x.split(source.h2DelEnd)[0]
-            if '.com' not in x:
-                x=source.url+x
-            if x not in h2s:
-                h2s.append(x)
-                print(x)
-            h2=h2.split(source.h2DelStart[0], 1)
-            if(len(h2)==1):
-                break
-            else:
-                h2=h2[1]#:][0]
-
-
-
-    h2s=splitHTML(content,
-                  source.h2SectionDividerStart,
-                  source.h2SectionDividerEnd,
-                  source.h2DelStart,
-                  source.h2DelEnd)
-
-    if source.h2SectionDividerStart!=None:
-        h2=h2.split(source.h2SectionDividerStart)[1]
-    if source.h2SectionDividerEnd!=None:
-        h2=h2.split(source.h2SectionDividerEnd)[0]
-
-    delim0=source.h2DelStart[0]
-    while delim0 in h2:
-        for delim in source.h2DelStart:
-            url=h2.split(delim)[1]
-            h2=''.join(h2.split(delim)[1:])
-        url=h2.split(source.h2DelEnd)[0]
-        h2=h2.split(source.h2DelEnd)[1]
-        if '.com' not in url:
-            url=source.url+url
-        h2s.append(url)
-    print(len(h2s))
-
-    h3s=splitHTML(content,
-                  source.h3SectionDividerStart,
-                  source.h3SectionDividerEnd,
-                  source.h3DelStart,
-                  source.h3DelEnd)
-    '''
-
     return h1s, h2s, h3s
 
 
@@ -177,11 +121,6 @@ def buildOutput(newsSourceArr):
     #set the random order for sources
     h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
     h2RandomSources=random.sample(range(len(newsSourceArr)), 4)
-    '''
-    print(h3RandomSources)
-    h2RandomSources=random.sample(range(len(newsSourceArr)), 1)
-    print(h3RandomSources)
-    '''
 
     #replace html template locations with data from newsSourceArr
     for i in range(len(h1RandomSources)):
@@ -193,13 +132,9 @@ def buildOutput(newsSourceArr):
         template=template.replace('xxImg1-'+str(i+1)+'xx', article.img)
         desc=article.description
         if len(desc)>144:
-            print(desc+'\n')
             desc=desc[:141]
-            print(desc+'\n')
             desc=desc.split()[:-1]
-            print(' '.join(desc)+'\n')
             desc=' '.join(desc)+' ...'
-            print(desc+'\n')
         template=template.replace('xxDesc1-'+str(i+1)+'xx', desc)
 
 
