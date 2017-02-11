@@ -191,6 +191,16 @@ def buildOutput(newsSourceArr):
         template=template.replace('xxURL1-'+str(i+1)+'xx', article.url)
         template=template.replace('xxTitle1-'+str(i+1)+'xx', article.title)
         template=template.replace('xxImg1-'+str(i+1)+'xx', article.img)
+        desc=article.description
+        if len(desc)>144:
+            print(desc+'\n')
+            desc=desc[:141]
+            print(desc+'\n')
+            desc=desc.split()[:-1]
+            print(' '.join(desc)+'\n')
+            desc=' '.join(desc)+' ...'
+            print(desc+'\n')
+        template=template.replace('xxDesc1-'+str(i+1)+'xx', desc)
 
 
     for i in range(len(h2RandomSources)):

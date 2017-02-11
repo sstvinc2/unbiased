@@ -59,6 +59,11 @@
     vertical-align:text-bottom;
 }
 
+.top-stories-desc{
+    font-size:.8em;
+    padding-top:.5em;
+}
+
 #middle-stories{
     clear:both;
     width:1000px;
