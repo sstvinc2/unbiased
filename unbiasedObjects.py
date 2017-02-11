@@ -2,16 +2,18 @@ class Article():
     title=''
     url=''
     img=''
+    description=''
     source=''
 
-    def __init__(self, title, url, img, source):
+    def __init__(self, title, url, img, description, source):
         self.title=title
         self.url=url
         self.img=img
+        self.description=description
         self.source=source
 
     def __str__(self):
-        return '-----------\n'+self.title+'\n'+self.source+'\n'+self.url+'\n'+self.img+'\n'+'-----------'
+        return '-----------\n'+self.title+'\n'+self.source+'\n'+self.description+'\n'+self.url+'\n'+self.img+'\n'+'-----------'
 
         
 class NewsSource():

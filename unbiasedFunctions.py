@@ -18,17 +18,22 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
     f.close()
 
     #because the quote separator could be ' or ", trim to just before it then lop it off
-    img=content.split('og:image" content=')[1][1:].split('>')[0]#[:-1]
+    img=content.split('og:image" content=')[1][1:].split('>')[0]
     if img[-1]=='/':
         img=img[:-1].strip()
     img=img[:-1]
     
-    title=content.split('og:title" content=')[1][1:].split('>')[0]#[1].split('"')[0]
+    title=content.split('og:title" content=')[1][1:].split('>')[0]
     if title[-1]=='/':
         title=title[:-1].strip()
     title=title[:-1]
+
+    description=content.split('og:description" content=')[1][1:].split('>')[0]
+    if description[-1]=='/':
+        description=description[:-1].strip()
+    description=description[:-1]
     
-    a=Article(title, url, img, sourceName)
+    a=Article(title, url, img, description, sourceName)
     return a
 
 
@@ -190,6 +195,7 @@ def buildOutput(newsSourceArr):
 
     for i in range(len(h2RandomSources)):
         source=newsSourceArr[h2RandomSources[i]]
+        print(source.name)
         randomArticle=random.sample(range(len(source.h2Arr)), 1)[0]
         article=source.h2Arr[randomArticle]
         template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)

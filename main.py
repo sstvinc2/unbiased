@@ -22,7 +22,7 @@ def run():
                                  ['<div class="story-link', '<a href="'],
                                  [],
                                  None, None,
-                                 'ad-content ad-xs mobilebox1', 'panel panel_default',
+                                 'ad-content ad-xs mobilebox1', 'taboola-native-top-stories-thumbnail',
                                  None, None))
 
 
