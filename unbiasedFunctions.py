@@ -6,9 +6,12 @@ import time
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
+    ''' PRINT DEBUGGING
     print(sourceName)
     print(url)
     print()
+    '''
+    
     #download url
     os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
 
@@ -79,41 +82,48 @@ def extractURLs(content, source):
     h2s=[]
     h3s=[]
 
-    h1=content
-    if source.h1SectionDividerStart!=None:
-        h1=h1.split(source.h1SectionDividerStart)[1]
-    if source.h1SectionDividerEnd!=None:
-        h1=h1.split(source.h1SectionDividerEnd)[0]
-    for delim in source.h1DelStart:
-        h1=h1.split(delim)[1]
-    h1=h1.split(source.h1DelEnd)[0]
-    if '.com' not in h1:
-        if source.stubURL!=None:
-            h1=source.stubURL+h1
-        else:
-            h1=source.url+h1
-    h1s.append(h1)
-
-    h2=content
-    if source.h2SectionDividerStart!=None:
-        h2=h2.split(source.h2SectionDividerStart, 1)[1]
-    if source.h2SectionDividerEnd!=None:
-        h2=h2.split(source.h2SectionDividerEnd, 1)[0]
-
-    while source.h2DelStart[0] in h2:
-        x=h2
-        for delim in source.h2DelStart:
-            x=x.split(delim)[1]
-            h2=h2.split(delim, 1)[1]
-        x=x.split(source.h2DelEnd)[0]
-        h2=h2.split(source.h2DelEnd, 1)[1]
-        if '.com' not in x:
+    try:
+        h1=content
+        if source.h1SectionDividerStart!=None:
+            h1=h1.split(source.h1SectionDividerStart)[1]
+        if source.h1SectionDividerEnd!=None:
+            h1=h1.split(source.h1SectionDividerEnd)[0]
+        for delim in source.h1DelStart:
+            h1=h1.split(delim)[1]
+        h1=h1.split(source.h1DelEnd)[0]
+        if '.com' not in h1:
             if source.stubURL!=None:
-                x=source.stubURL+x
+                h1=source.stubURL+h1
             else:
-                x=source.url+x
-        h2s.append(x)
-    
+                h1=source.url+h1
+        h1s.append(h1)
+    except:
+        print("Parse error in extractURLs: "+source.name+" h1")
+        h1s=None
+        
+    try:
+        h2=content
+        if source.h2SectionDividerStart!=None:
+            h2=h2.split(source.h2SectionDividerStart, 1)[1]
+        if source.h2SectionDividerEnd!=None:
+            h2=h2.split(source.h2SectionDividerEnd, 1)[0]
+
+        while source.h2DelStart[0] in h2:
+            x=h2
+            for delim in source.h2DelStart:
+                x=x.split(delim)[1]
+                h2=h2.split(delim, 1)[1]
+            x=x.split(source.h2DelEnd)[0]
+            h2=h2.split(source.h2DelEnd, 1)[1]
+            if '.com' not in x:
+                if source.stubURL!=None:
+                    x=source.stubURL+x
+                else:
+                    x=source.url+x
+            h2s.append(x)
+    except:
+        print("Parse error in extractURLs: "+source.name+" h2")
+        h2s=None
 
     return h1s, h2s, h3s
 
@@ -146,7 +156,6 @@ def buildOutput(newsSourceArr):
 
     for i in range(len(h2RandomSources)):
         source=newsSourceArr[h2RandomSources[i]]
-        print(source.name)
         randomArticle=random.sample(range(len(source.h2Arr)), 1)[0]
         article=source.h2Arr[randomArticle]
         template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
@@ -157,7 +166,7 @@ def buildOutput(newsSourceArr):
     for i in range(len(newsSourceArr)-1):
         sourcesStr+=newsSourceArr[i].name+', '
     sourcesStr+=newsSourceArr[-1].name
-    print(sourcesStr)
+    print('Successfully parsed: '+sourcesStr)
     template=template.replace('xxSourcesxx', sourcesStr)
         
 
@@ -194,16 +203,19 @@ def buildNewsSourceArr(sourceList):
         h1s, h2s, h3s=extractURLs(content, source)
         
         #build the Article objects and add to newsSource's appropriate list
-        for url in h1s:
-            article=buildArticle(url, source.name)
-            source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
-        for url in h2s:
-            article=buildArticle(url, source.name)
-            sourceList[i].h2Arr.append(article)
-        for url in h3s:
-            article=buildArticle(url, source.name)
-            sourceList[i].h3Arr.append(article)
-        
+        if h1s!=None and h2s!=None:
+            for url in h1s:
+                article=buildArticle(url, source.name)
+                source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
+            for url in h2s:
+                article=buildArticle(url, source.name)
+                sourceList[i].h2Arr.append(article)
+            for url in h3s:
+                article=buildArticle(url, source.name)
+                sourceList[i].h3Arr.append(article)
+        else:
+            sourceList.remove(source)
+                
     #return the original sourceList,
     #since everything should have been modified in place
     return sourceList        
