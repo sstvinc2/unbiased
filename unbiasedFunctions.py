@@ -184,7 +184,9 @@ def printOutputHTML(outputHTML, outFile):
 def buildNewsSourceArr(sourceList):
 
     #build the data structure
-    for i in range(len(sourceList)):
+    i=0
+    listLen=len(sourceList)
+    while i < listLen:
         source=sourceList[i]
         url=source.url
 
@@ -213,9 +215,12 @@ def buildNewsSourceArr(sourceList):
             for url in h3s:
                 article=buildArticle(url, source.name)
                 sourceList[i].h3Arr.append(article)
+            i+=1
         else:
             sourceList.remove(source)
-                
+            listLen-=1
+
+            
     #return the original sourceList,
     #since everything should have been modified in place
     return sourceList        
