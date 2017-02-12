@@ -15,7 +15,17 @@ def run():
     sourceList=[]
 
 
+    sourceList.append(NewsSource('BBC US',
+                                 'http://www.bbc.com/news/world/us_and_canada',
+                                 ['buzzard-item', '<a href="'],
+                                 ['top_stories#', '<a href="'],
+                                 [],
+                                 None, None,
+                                 '<div class="pigeon">','<div id=',
+                                 None, None,
+                                 'http://www.bbc.com'))
 
+    
     sourceList.append(NewsSource('NBC News',
                                  'http://nbcnews.com',
                                  ['top-stories-section', 'panel_hero', '<a href="'],

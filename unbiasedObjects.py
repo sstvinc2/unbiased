@@ -36,12 +36,15 @@ class NewsSource():
     h1Arr=None
     h2Arr=None
     h3Arr=None
-
+    #url to attach to stub links
+    stubURL=''
+    
     def __init__(self, name, url,
                  h1DelStart, h2DelStart, h3DelStart,
                  h1SectionDividerStart=None, h1SectionDividerEnd=None,
                  h2SectionDividerStart=None, h2SectionDividerEnd=None,
-                 h3SectionDividerStart=None, h3SectionDividerEnd=None):
+                 h3SectionDividerStart=None, h3SectionDividerEnd=None,
+                 stubURL=None):
         self.name=name
         self.url=url
         self.h1DelStart=h1DelStart
@@ -56,6 +59,7 @@ class NewsSource():
         self.h1Arr=[]
         self.h2Arr=[]
         self.h3Arr=[]
+        self.stubURL=stubURL
 
     def addArticle(self, article, level):
         if level==1:

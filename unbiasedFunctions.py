@@ -88,7 +88,10 @@ def extractURLs(content, source):
         h1=h1.split(delim)[1]
     h1=h1.split(source.h1DelEnd)[0]
     if '.com' not in h1:
-        h1=source.url+h1
+        if source.stubURL!=None:
+            h1=source.stubURL+h1
+        else:
+            h1=source.url+h1
     h1s.append(h1)
 
     h2=content
@@ -105,7 +108,10 @@ def extractURLs(content, source):
         x=x.split(source.h2DelEnd)[0]
         h2=h2.split(source.h2DelEnd, 1)[1]
         if '.com' not in x:
-            x=source.url+x
+            if source.stubURL!=None:
+                x=source.stubURL+x
+            else:
+                x=source.url+x
         h2s.append(x)
     
 
