@@ -165,7 +165,10 @@ def buildOutput(newsSourceArr):
         source=newsSourceArr[h2RandomSources[i]]
         randomArticle=random.sample(range(len(source.h2Arr)), 1)[0]
         article=source.h2Arr[randomArticle]
-        template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
+        #template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
+        r=open('/var/www/html/redirects/h2-'+str(i+1)+'.html', 'w')
+        r.write('<html><head><script type="text/javascript">window.location="'+article.url+'"</script></head></html>')
+        r.close()
         template=template.replace('xxTitle2-'+str(i+1)+'xx', article.title)
         template=template.replace('xxImg2-'+str(i+1)+'xx', article.img)
 
