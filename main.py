@@ -70,7 +70,7 @@ def run():
 
     sourceList.append(NewsSource('New York Times',
                                  'http://nytimes.com',
-                                 ['<a href="'],#'<h1 class="story-heading"><a href="'],#['"b-column column', 'h2 class="story-heading"><a href="'],
+                                 ['<a href="'],
                                  ['<article class="story theme-summary"', '<a href="'],
                                  ['<hr class="single-rule"', 'article class="story theme-summary', 'h2 class="story-heading"><a href="'],
                                  '<div class="b-column column">', '<!-- close photo-spot-region -->',
@@ -95,7 +95,7 @@ def run():
     #build the output file HTML
     outputHTML=buildOutput(newsSourceArr)
     #print the output file HTML
-    printOutputHTML(outputHTML, '/var/www/html/index.html')#'unbiased.html')
+    printOutputHTML(outputHTML, '/var/www/html/index.html')
 
 
 if __name__=="__main__":
