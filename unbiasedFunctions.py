@@ -20,25 +20,29 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
     content=f.read()
     f.close()
 
-    #because the quote separator could be ' or ", trim to just before it then lop it off
-    img=content.split('og:image" content=')[1][1:].split('>')[0]
-    if img[-1]=='/':
-        img=img[:-1].strip()
-    img=img[:-1]
-    
-    title=content.split('og:title" content=')[1][1:].split('>')[0]
-    if title[-1]=='/':
-        title=title[:-1].strip()
-    title=title[:-1]
+    try:
+        #because the quote separator could be ' or ", trim to just before it then lop it off
+        img=content.split('og:image" content=')[1][1:].split('>')[0]
+        if img[-1]=='/':
+            img=img[:-1].strip()
+        img=img[:-1]
 
-    description=content.split('og:description" content=')[1][1:].split('>')[0]
-    if description[-1]=='/':
-        description=description[:-1].strip()
-    description=description[:-1]
-    
-    a=Article(title, url, img, description, sourceName)
-    return a
+        title=content.split('og:title" content=')[1][1:].split('>')[0]
+        if title[-1]=='/':
+            title=title[:-1].strip()
+        title=title[:-1]
 
+        description=content.split('og:description" content=')[1][1:].split('>')[0]
+        if description[-1]=='/':
+            description=description[:-1].strip()
+        description=description[:-1]
+
+        a=Article(title, url, img, description, sourceName)
+        return a
+
+    except:
+        print("Article parsing error in buildArticle() for URL: "+url)
+        return None
 
 #do the hardcore HTML parsing
 def splitHTML(content, sectionDividerStart, sectionDividerEnd, delStart, delEnd):
@@ -136,7 +140,7 @@ def buildOutput(newsSourceArr):
     
     #set the random order for sources
     h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
-    h2RandomSources=random.sample(range(len(newsSourceArr)), 4)
+    h2RandomSources=random.sample(range(len(newsSourceArr)), 6)
 
     #replace html template locations with data from newsSourceArr
     for i in range(len(h1RandomSources)):
@@ -208,13 +212,13 @@ def buildNewsSourceArr(sourceList):
         if h1s!=None and h2s!=None:
             for url in h1s:
                 article=buildArticle(url, source.name)
-                source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
+                if article!=None: source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
             for url in h2s:
                 article=buildArticle(url, source.name)
-                sourceList[i].h2Arr.append(article)
+                if article!=None: sourceList[i].h2Arr.append(article)
             for url in h3s:
                 article=buildArticle(url, source.name)
-                sourceList[i].h3Arr.append(article)
+                if article!=None: sourceList[i].h3Arr.append(article)
             i+=1
         else:
             sourceList.remove(source)
