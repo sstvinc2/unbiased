@@ -38,10 +38,10 @@ def run():
 
     sourceList.append(NewsSource('CBS News',
                                  'http://cbsnews.com',
-                                 ['<a href="'],
+                                 ['<h1 class="title">', '<a href="'],
                                  ['<li data-tb-region-item>', '<a href="'],
                                  [],
-                                 'Big News Area Side Assets', '</a>'
+                                 None, None, #'Big News Area Side Assets', '</a>'
                                  'Big News Area Side Assets', '</ul></div>',
                                  None, None))
 
