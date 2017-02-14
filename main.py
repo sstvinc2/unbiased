@@ -9,7 +9,7 @@ def main():
         print('-----------------------')
         run()
         print('-----------------------')
-        time.sleep(120)
+        time.sleep(600)
 
 def run():
     sourceList=[]
