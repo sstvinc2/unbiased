@@ -2,6 +2,7 @@
 
 from unbiasedObjects import *
 from unbiasedFunctions import *
+from parser import *
 import time
 
 def main():
@@ -67,7 +68,10 @@ def run():
                                  None, None))
 
 
+    nyt=buildNYT()
+    sourceList.append(nyt)
 
+    '''
     sourceList.append(NewsSource('New York Times',
                                  'http://nytimes.com',
                                  ['<a href="'],
@@ -76,6 +80,10 @@ def run():
                                  '<div class="b-column column">', '<!-- close photo-spot-region -->',
                                  'section id="top-news" class="top-news"', '</div><!-- close a-column -->',
                                  'class="second-column-region region"', 'html.geo-dma-501 .nythpNYRegionPromo'))
+    '''
+
+
+
 
     sourceList.append(NewsSource('Fox News',
                                  'http://foxnews.com',

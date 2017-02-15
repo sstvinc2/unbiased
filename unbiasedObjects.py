@@ -15,6 +15,21 @@ class Article():
     def __str__(self):
         return '-----------\n'+self.title+'\n'+self.source+'\n'+self.description+'\n'+self.url+'\n'+self.img+'\n'+'-----------'
 
+
+class NewsSource2():
+    name=''
+    url=''
+    h1Arr=[]
+    h2Arr=[]
+    h3Arr=[]
+    def __init__(self, name, url, h1Arr, h2Arr, h3Arr):
+        self.name=name
+        self.url=url
+        self.h1Arr=h1Arr
+        self.h2Arr=h2Arr
+        self.h3Arr=h3Arr
+        
+
         
 class NewsSource():
     name=''

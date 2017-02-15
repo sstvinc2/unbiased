@@ -3,6 +3,7 @@ import os
 import random
 import time
 
+
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
@@ -44,41 +45,6 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
         print("Article parsing error in buildArticle() for URL: "+url)
         return None
 
-#do the hardcore HTML parsing
-def splitHTML(content, sectionDividerStart, sectionDividerEnd, delStart, delEnd):
-    retArr=[]
-    
-    if sectionDividerStart!=None:
-        content=content.split(sectionDividerStart)[1]
-    if sectionDividerEnd!=None:
-        content=content.split(sectionDividerEnd)[0]
-    if delStart!=[]:
-        while True:
-            x=content
-            for delim in delStart:
-                if delim in content:
-                    x=content.split(delim)[1]
-            x=x.split(delEnd)[0]
-            if x not in retArr:
-                retArr.append(x)   
-            content=content.split(delStart[0], 1)
-            if(len(content)==1):
-                break
-            else:
-                content=content[1:][0]
-
-    return retArr
-    
-
-
-'''
-**********************8
-
-Need to fix this function to use splitHTML() and actually loop through
-all of the links instead of just using the first one.
-
-************************
-'''
 
 #take in a read main source file (e.g. from nytimes.com) and return lists of the urls for stories
 def extractURLs(content, source):
@@ -202,6 +168,11 @@ def buildNewsSourceArr(sourceList):
     listLen=len(sourceList)
     while i < listLen:
         source=sourceList[i]
+
+        if type(source) is NewsSource2:
+            i+=1
+            continue
+
         url=source.url
 
         #download file
