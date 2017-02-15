@@ -94,6 +94,73 @@ def removeDuplicates(h1s, h2s, h3s):
     return h1s, h2s, h3s
     
 
+
+def buildWeeklyStandard():
+    url='http://www.weeklystandard.com'
+    name='Weekly Standard'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+    
+    #get main headline
+    h1=content
+    h1=h1.split('<div id="region_1"', 1)[1]
+    h1=h1.split('<div id="region_2"', 1)[0]
+    h1=h1.split('<div class="lead-photo">', 1)[1]
+    h1=h1.split('href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('<div class="widget lead-story layout-3col-feature" data-count="2">', 1)[1]
+    h2=h2.split('<div id="region_2"', 1)[0]
+    while '<div class="lead-photo">' in h2:
+        h2=h2.split('<div class="lead-photo">', 1)[1]
+        h2=h2.split('href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('Today\'s Standard', 1)[1]
+    h3=h3.split('<div id="region_3"', 1)[0]
+    while '<div class="lead-photo">' in h3:
+        h3=h3.split('<div class="lead-photo">', 1)[1]
+        h3=h3.split('href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(x)
+
+    #Need to add URL prefix to all URLs
+    for i in range(len(h1s)):
+        h1s[i]=url+h1s[i]
+    for i in range(len(h2s)):
+        h2s[i]=url+h2s[i]
+    for i in range(len(h3s)):
+        h3s[i]=url+h3s[i]
+        
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    wkl=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #REMOVE BAD STORIES
+    #if it's in the h1 slot, bump up the first h2 into the h1 slot
+    for h1 in wkl.h1Arr:
+        if 'Matt Labash' in h1.description:
+            wkl.h1Arr.remove(h1)
+            wkl.h1Arr.append(wkl.h2Arr[0])
+            wkl.h2Arr.remove(wkl.h2Arr[0])
+            print('removed '+h1.title)
+
+    return wkl
+
+
+
+
 def buildFoxNews():
     url='http://foxnews.com'
     name='Fox News'

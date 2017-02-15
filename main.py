@@ -58,15 +58,8 @@ def run():
                                  None, None))
     
 
-    sourceList.append(NewsSource('Weekly Standard',
-                                 'http://www.weeklystandard.com/',
-                                 ['<div class="lead-photo">', 'href="'],
-                                 ['<div class="lead-photo">', 'href="'],
-                                 [],
-                                 '<div id="region_1"', '<div id="region_2"',
-                                 '<div class="widget lead-story layout-3col-feature" data-count="2">', '<div id="region_2"',
-                                 None, None))
-
+    wkl=buildWeeklyStandard()
+    sourceList.append(wkl)
 
     nyt=buildNYT()
     sourceList.append(nyt)
