@@ -3,6 +3,7 @@
 from unbiasedObjects import *
 from unbiasedFunctions import buildArticle
 import os
+import re
 
 
 '''
@@ -163,6 +164,75 @@ def removeBadStories(source, badDescArr, badAuthorArr, badImgArr):
 
     return source
 
+
+'''
+Function to fix the oddly short og:descriptions provided
+in The Blaze articles by grabbing the first portion of the story instead
+'''
+def blazeFixDesc(articleArr):
+    TAG_RE = re.compile(r'<[^>]+>')
+    for i in range(len(articleArr)):
+        desc=urlToContent(articleArr[i].url)
+        desc=desc.split('<div class="entry-content article-styles">', 1)[1]
+        desc=desc.split('<p>', 1)[1]
+        desc=TAG_RE.sub('', desc)
+        desc=desc.replace('\n', ' ')
+        desc=desc[:144]
+        print(desc+'\n\n')
+        articleArr[i].description=desc
+
+    return articleArr
+    
+
+
+def buildBlaze():
+    url='http://theblaze.com'
+    name='The Blaze'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('<!-- home -->', 1)[1]
+    h1=h1.split('<!-- loop-home -->', 1)[0]
+    h1=h1.split('<a class="gallery-link" href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('<!-- home -->', 1)[1]
+    h2=h2.split('<!-- loop-home -->', 1)[0]
+    while '</figure>\n\n<figure class="gallery-item">' in h2:
+        h2=h2.split('</figure>\n\n<figure class="gallery-item">', 1)[1]
+        h2=h2.split('href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('<!-- loop-home -->', 1)[1]
+    #this story section goes on forever; just grab the first 5
+    while len(h3s)<5:
+        h3=h3.split('<a class="feed-link" href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(url+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    blz=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #The Blaze has dumb, short description fields, so we need to grab
+    #the first x characters of actual article text instead
+    blz.h1Arr=blazeFixDesc(blz.h1Arr)
+    blz.h2Arr=blazeFixDesc(blz.h2Arr)
+    blz.h3Arr=blazeFixDesc(blz.h3Arr)
+
+    return blz
 
 
 

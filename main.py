@@ -15,6 +15,9 @@ def main():
 def run():
     sourceList=[]
 
+    blz=buildBlaze()
+    sourceList.append(blz)
+
     bbc=buildBBC()
     sourceList.append(bbc)
 
@@ -24,7 +27,8 @@ def run():
     cbs=buildCBS()
     sourceList.append(cbs)
 
-    
+
+    '''
     sourceList.append(NewsSource('The Blaze',
                                  'http://theblaze.com',
                                  ['<a class="gallery-link" href="'],
@@ -33,7 +37,7 @@ def run():
                                  '<!-- home -->', '<!-- loop-home -->',
                                  '<!-- home -->', '<!-- loop-home -->',
                                  None, None))
-    
+    '''
 
     wkl=buildWeeklyStandard()
     sourceList.append(wkl)
