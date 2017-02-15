@@ -27,23 +27,11 @@ def run():
     cbs=buildCBS()
     sourceList.append(cbs)
 
-
-    '''
-    sourceList.append(NewsSource('The Blaze',
-                                 'http://theblaze.com',
-                                 ['<a class="gallery-link" href="'],
-                                 ['</figure>\n\n<figure class="gallery-item">', 'href="'],
-                                 [],
-                                 '<!-- home -->', '<!-- loop-home -->',
-                                 '<!-- home -->', '<!-- loop-home -->',
-                                 None, None))
-    '''
-
     wkl=buildWeeklyStandard()
     sourceList.append(wkl)
 
-    nyt=buildNYT()
-    sourceList.append(nyt)
+    #nyt=buildNYT()
+    #sourceList.append(nyt)
 
     fox=buildFoxNews()
     sourceList.append(fox)
@@ -53,6 +41,7 @@ def run():
 
     #build the output file HTML
     outputHTML=buildOutput(newsSourceArr)
+
     #print the output file HTML
     printOutputHTML(outputHTML, '/var/www/html/index.html')
 

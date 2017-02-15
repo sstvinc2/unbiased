@@ -54,58 +54,6 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
         return None
 
 
-#take in a read main source file (e.g. from nytimes.com) and return lists of the urls for stories
-def extractURLs(content, source):
-    h1s=[]
-    h2s=[]
-    h3s=[]
-
-    try:
-        h1=content
-        if source.h1SectionDividerStart!=None:
-            h1=h1.split(source.h1SectionDividerStart)[1]
-        if source.h1SectionDividerEnd!=None:
-            h1=h1.split(source.h1SectionDividerEnd)[0]
-        for delim in source.h1DelStart:
-            h1=h1.split(delim)[1]
-        h1=h1.split(source.h1DelEnd)[0]
-        if '.com' not in h1:
-            if source.stubURL!=None:
-                h1=source.stubURL+h1
-            else:
-                h1=source.url+h1
-        h1s.append(h1)
-    except:
-        print("Parse error in extractURLs: "+source.name+" h1")
-        h1s=None
-        
-    try:
-        h2=content
-        if source.h2SectionDividerStart!=None:
-            h2=h2.split(source.h2SectionDividerStart, 1)[1]
-        if source.h2SectionDividerEnd!=None:
-            h2=h2.split(source.h2SectionDividerEnd, 1)[0]
-
-        while source.h2DelStart[0] in h2:
-            x=h2
-            for delim in source.h2DelStart:
-                x=x.split(delim)[1]
-                h2=h2.split(delim, 1)[1]
-            x=x.split(source.h2DelEnd)[0]
-            h2=h2.split(source.h2DelEnd, 1)[1]
-            if '.com' not in x:
-                if source.stubURL!=None:
-                    x=source.stubURL+x
-                else:
-                    x=source.url+x
-            h2s.append(x)
-    except:
-        print("Parse error in extractURLs: "+source.name+" h2")
-        h2s=None
-
-    return h1s, h2s, h3s
-
-
 def buildOutput(newsSourceArr):
     #read in the template html file
     f=open('html_template/template.html', 'r')
@@ -114,7 +62,23 @@ def buildOutput(newsSourceArr):
     
     #set the random order for sources
     h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
-    h2RandomSources=random.sample(range(len(newsSourceArr)), 6)
+    #For h2s and h3s, select N random sources (can repeat), then
+    #a non-repetitive random article from within that source
+    h2RandomPairs=[]
+    while len(h2RandomPairs) < 6:
+        x=random.sample(range(len(newsSourceArr)), 1)[0]
+        y=random.sample(range(len(newsSourceArr[x].h2Arr)), 1)[0]
+        pair=[x,y]
+        if not pair in h2RandomPairs:
+            h2RandomPairs.append(pair)
+    h3RandomPairs=[]
+    while len(h3RandomPairs) < 12:
+        x=random.sample(range(len(newsSourceArr)), 1)[0]
+        y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
+        pair=[x,y]
+        if not pair in h3RandomPairs:
+            h3RandomPairs.append(pair)
+
 
     #replace html template locations with data from newsSourceArr
     for i in range(len(h1RandomSources)):
@@ -122,11 +86,6 @@ def buildOutput(newsSourceArr):
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
         template=template.replace('xxURL1-'+str(i+1)+'xx', article.url)
-        '''
-        r=open('/var/www/html/redirects/h1-'+str(i+1)+'.html', 'w')
-        r.write('<html><head><script type="text/javascript">window.location="'+article.url+'"</script></head></html>')
-        r.close()
-        '''
         template=template.replace('xxTitle1-'+str(i+1)+'xx', article.title)
         template=template.replace('xxImg1-'+str(i+1)+'xx', article.img)
         desc=article.description
@@ -136,19 +95,20 @@ def buildOutput(newsSourceArr):
             desc=' '.join(desc)+' ...'
         template=template.replace('xxDesc1-'+str(i+1)+'xx', desc)
 
-
-    for i in range(len(h2RandomSources)):
-        source=newsSourceArr[h2RandomSources[i]]
-        randomArticle=random.sample(range(len(source.h2Arr)), 1)[0]
-        article=source.h2Arr[randomArticle]
+    for i in range(len(h2RandomPairs)):
+        pair=h2RandomPairs[i]
+        article=newsSourceArr[pair[0]].h2Arr[pair[1]]
         template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
-        '''
-        r=open('/var/www/html/redirects/h2-'+str(i+1)+'.html', 'w')
-        r.write('<html><head><script type="text/javascript">window.location="'+article.url+'"</script></head></html>')
-        r.close()
-        '''
         template=template.replace('xxTitle2-'+str(i+1)+'xx', article.title)
         template=template.replace('xxImg2-'+str(i+1)+'xx', article.img)
+
+    for i in range(len(h3RandomPairs)):
+        pair=h3RandomPairs[i]
+        article=newsSourceArr[pair[0]].h3Arr[pair[1]]
+        template=template.replace('xxURL3-'+str(i+1)+'xx', article.url)
+        template=template.replace('xxTitle3-'+str(i+1)+'xx', article.title)
+        template=template.replace('xxImg3-'+str(i+1)+'xx', article.img)
+
 
     sourcesStr=''
     for i in range(len(newsSourceArr)-1):

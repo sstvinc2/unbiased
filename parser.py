@@ -178,7 +178,6 @@ def blazeFixDesc(articleArr):
         desc=TAG_RE.sub('', desc)
         desc=desc.replace('\n', ' ')
         desc=desc[:144]
-        print(desc+'\n\n')
         articleArr[i].description=desc
 
     return articleArr
