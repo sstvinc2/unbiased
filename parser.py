@@ -142,6 +142,54 @@ def removeBadStories(source, badDescArr, badAuthorArr):
     return source
 
 
+def buildNBC():    
+    url='http://nbcnews.com'
+    name='NBC News'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('top-stories-section', 1)[1]
+    h1=h1.split('panel_hero', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('ad-content ad-xs mobilebox1', 1)[1]
+    h2=h2.split('taboola-native-top-stories-thumbnail', 1)[0]
+    while '<div class="story-link' in h2:
+        h2=h2.split('<div class="story-link', 1)[1]
+        h2=h2.split('<a href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('js-more-topstories', 1)[1]
+    h3=h3.split('<div class="panel-section', 1)[0]
+    while '<div class="story-link' in h3:
+        h3=h3.split('<div class="story-link', 1)[1]
+        h3=h3.split('<a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(url+x)
+
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    nbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    return nbc
+
+
+
+
 def buildBBC():    
     url='http://www.bbc.com/news/world/us_and_canada'
     name='BBC US & Canada'

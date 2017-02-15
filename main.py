@@ -18,16 +18,19 @@ def run():
     bbc=buildBBC()
     sourceList.append(bbc)
 
-    
+    nbc=buildNBC()
+    sourceList.append(nbc)
+
+    '''
     sourceList.append(NewsSource('NBC News',
                                  'http://nbcnews.com',
-                                 ['top-stories-section', 'panel_hero', '<a href="'],
+                                 [' top-stories-section', 'panel_hero', '<a href="'],
                                  ['<div class="story-link', '<a href="'],
                                  [],
                                  None, None,
                                  'ad-content ad-xs mobilebox1', 'taboola-native-top-stories-thumbnail',
                                  None, None))
-
+    '''
 
     sourceList.append(NewsSource('CBS News',
                                  'http://cbsnews.com',
