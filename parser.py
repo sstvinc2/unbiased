@@ -118,7 +118,6 @@ def removeBadStories(source, badDescArr, badAuthorArr):
                     source.h3Arr.remove(h3)
                     print('removed '+h3.title+' from '+source.name)
 
-    '''
     if badDescArr!=None:
         for h1 in source.h1Arr:
             for item in badDescArr:
@@ -139,10 +138,64 @@ def removeBadStories(source, badDescArr, badAuthorArr):
                 if item in h3.description:
                     source.h3Arr.remove(h3)
                     print('removed '+h3.title+' from '+source.name)
-    '''
 
     return source
-    
+
+
+def buildBBC():    
+    url='http://www.bbc.com/news/world/us_and_canada'
+    name='BBC US & Canada'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('buzzard-item', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=['http://www.bbc.com'+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('<div class="pigeon">', 1)[1]
+    h2=h2.split('<div id=', 1)[0]
+    while 'top_stories#' in h2:
+        h2=h2.split('top_stories#', 1)[1]
+        h2=h2.split('<a href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append('http://www.bbc.com'+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('<div class="macaw">', 1)[1]
+    h3=h3.split('Watch/Listen', 1)[0]
+    while '<div class="macaw-item' in h3:
+        h3=h3.split('<div class="macaw-item', 1)[1]
+        h3=h3.split('<a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append('http://www.bbc.com'+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    bbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #REMOVE ' - BBC News' from headlines
+    for i in range(len(bbc.h1Arr)):
+        if ' - BBC News' in bbc.h1Arr[i].title:
+            bbc.h1Arr[i].title=bbc.h1Arr[i].title.split(' - BBC News', 1)[0]
+    for i in range(len(bbc.h2Arr)):
+        if ' - BBC News' in bbc.h2Arr[i].title:
+            bbc.h2Arr[i].title=bbc.h2Arr[i].title.split(' - BBC News', 1)[0]
+    for i in range(len(bbc.h3Arr)):
+        if ' - BBC News' in bbc.h3Arr[i].title:
+            bbc.h3Arr[i].title=bbc.h3Arr[i].title.split(' - BBC News', 1)[0]
+
+    return bbc
+
 
 
 def buildWeeklyStandard():

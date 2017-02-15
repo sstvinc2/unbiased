@@ -15,16 +15,8 @@ def main():
 def run():
     sourceList=[]
 
-
-    sourceList.append(NewsSource('BBC US',
-                                 'http://www.bbc.com/news/world/us_and_canada',
-                                 ['buzzard-item', '<a href="'],
-                                 ['top_stories#', '<a href="'],
-                                 [],
-                                 None, None,
-                                 '<div class="pigeon">','<div id=',
-                                 None, None,
-                                 'http://www.bbc.com'))
+    bbc=buildBBC()
+    sourceList.append(bbc)
 
     
     sourceList.append(NewsSource('NBC News',

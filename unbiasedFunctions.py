@@ -7,7 +7,7 @@ import time
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
-    ''' PRINT DEBUGGING
+    '''#PRINT DEBUGGING
     print(sourceName)
     print(url)
     print()
