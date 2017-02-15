@@ -95,7 +95,7 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 
-def removeBadStories(source, badDescArr, badAuthorArr):
+def removeBadStories(source, badDescArr, badAuthorArr, badImgArr):
 
     if badAuthorArr!=None:
         for h1 in source.h1Arr:
@@ -105,18 +105,18 @@ def removeBadStories(source, badDescArr, badAuthorArr):
                     #if it's in the h1 slot, bump up the first h2 into the h1 slot
                     source.h1Arr.append(source.h2Arr[0])
                     source.h2Arr.remove(source.h2Arr[0])
-                    print('removed '+h1.title+' from '+source.name)
+                    print('removed '+h1.title+' from '+source.name+' Reason: bad author')
         for h2 in source.h2Arr:
             for item in badAuthorArr:
                 if item in h2.author:
                     source.h2Arr.remove(h2)
-                    print('removed '+h2.title+' from '+source.name)
+                    print('removed '+h2.title+' from '+source.name+' Reason: bad author')
 
         for h3 in source.h3Arr:
             for item in badAuthorArr:
                 if item in h3.author:
                     source.h3Arr.remove(h3)
-                    print('removed '+h3.title+' from '+source.name)
+                    print('removed '+h3.title+' from '+source.name+' Reason: bad author')
 
     if badDescArr!=None:
         for h1 in source.h1Arr:
@@ -126,20 +126,91 @@ def removeBadStories(source, badDescArr, badAuthorArr):
                     #if it's in the h1 slot, bump up the first h2 into the h1 slot
                     source.h1Arr.append(source.h2Arr[0])
                     source.h2Arr.remove(source.h2Arr[0])
-                    print('removed '+h1.title+' from '+source.name)
+                    print('removed '+h1.title+' from '+source.name+' Reason: bad description')
         for h2 in source.h2Arr:
             for item in badDescArr:
                 if item in h2.description:
                     source.h2Arr.remove(h2)
-                    print('removed '+h2.title+' from '+source.name)
+                    print('removed '+h2.title+' from '+source.name+' Reason: bad description')
 
         for h3 in source.h3Arr:
             for item in badDescArr:
                 if item in h3.description:
                     source.h3Arr.remove(h3)
-                    print('removed '+h3.title+' from '+source.name)
+                    print('removed '+h3.title+' from '+source.name+' Reason: bad description')
+
+    if badImgArr!=None:
+        for h1 in source.h1Arr:
+            for item in badImgArr:
+                if item in h1.img:
+                    source.h1Arr.remove(h1)
+                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
+                    source.h1Arr.append(source.h2Arr[0])
+                    source.h2Arr.remove(source.h2Arr[0])
+                    print('removed '+h1.title+' from '+source.name+' Reason: bad image')
+
+        for h2 in source.h2Arr:
+            for item in badImgArr:
+                if item in h2.img:
+                    source.h2Arr.remove(h2)
+                    print('removed '+h2.title+' from '+source.name+' Reason: bad image')
+
+        for h3 in source.h3Arr:
+            for item in badImgArr:
+                if item in h3.img:
+                    source.h3Arr.remove(h3)
+                    print('removed '+h3.title+' from '+source.name+' Reason: bad image')
 
     return source
+
+
+
+
+def buildCBS():
+    url='http://cbsnews.com'
+    name='CBS News'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('<h1 class="title">', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('Big News Area Side Assets', 1)[1]
+    h2=h2.split('</ul></div>', 1)[0]
+    while '<li data-tb-region-item>' in h2:
+        h2=h2.split('<li data-tb-region-item>', 1)[1]
+        h2=h2.split('<a href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('Latest News', 1)[1]
+    #this story section goes on forever; just grab the first 5
+    while len(h3s)<5:
+        h3=h3.split('<li class="item-full-lead"', 1)[1]
+        h3=h3.split('<a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(url+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    cbs=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    return cbs
+
+
+
 
 
 def buildNBC():    
@@ -301,7 +372,8 @@ def buildWeeklyStandard():
     #REMOVE BAD STORIES
     badDescArr=['Matt Labash']
     badAuthorArr=['MATT LABASH']
-    wkl=removeBadStories(wkl, badDescArr, badAuthorArr)
+    badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
+    wkl=removeBadStories(wkl, badDescArr, badAuthorArr, badImgArr)
 
     return wkl
 

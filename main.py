@@ -21,26 +21,8 @@ def run():
     nbc=buildNBC()
     sourceList.append(nbc)
 
-    '''
-    sourceList.append(NewsSource('NBC News',
-                                 'http://nbcnews.com',
-                                 [' top-stories-section', 'panel_hero', '<a href="'],
-                                 ['<div class="story-link', '<a href="'],
-                                 [],
-                                 None, None,
-                                 'ad-content ad-xs mobilebox1', 'taboola-native-top-stories-thumbnail',
-                                 None, None))
-    '''
-
-    sourceList.append(NewsSource('CBS News',
-                                 'http://cbsnews.com',
-                                 ['<h1 class="title">', '<a href="'],
-                                 ['<li data-tb-region-item>', '<a href="'],
-                                 [],
-                                 None, None, #'Big News Area Side Assets', '</a>'
-                                 'Big News Area Side Assets', '</ul></div>',
-                                 None, None))
-
+    cbs=buildCBS()
+    sourceList.append(cbs)
 
     
     sourceList.append(NewsSource('The Blaze',
