@@ -71,31 +71,8 @@ def run():
     nyt=buildNYT()
     sourceList.append(nyt)
 
-    '''
-    sourceList.append(NewsSource('New York Times',
-                                 'http://nytimes.com',
-                                 ['<a href="'],
-                                 ['<article class="story theme-summary"', '<a href="'],
-                                 ['<hr class="single-rule"', 'article class="story theme-summary', 'h2 class="story-heading"><a href="'],
-                                 '<div class="b-column column">', '<!-- close photo-spot-region -->',
-                                 'section id="top-news" class="top-news"', '</div><!-- close a-column -->',
-                                 'class="second-column-region region"', 'html.geo-dma-501 .nythpNYRegionPromo'))
-    '''
-
-
-
-
-    sourceList.append(NewsSource('Fox News',
-                                 'http://foxnews.com',
-                                 ['<h1><a href="'],
-                                 ['<li data-vr-contentbox=""><a href="'],
-                                 [],
-                                 None, None,
-                                 '<div class="top-stories">', '<section id="latest"',
-                                 None, None))
-
-
-
+    fox=buildFoxNews()
+    sourceList.append(fox)
     
     #scrape all urls and build data structure
     newsSourceArr=buildNewsSourceArr(sourceList)
