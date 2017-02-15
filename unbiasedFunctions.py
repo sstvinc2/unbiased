@@ -33,16 +33,24 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
             title=title[:-1].strip()
         title=title[:-1]
 
+        author=''
+        authorTags=['article:author', 'dc.creator']
+        for tag in authorTags:
+            if tag in content:
+                author=content.split(tag+'" content=')[1][1:].split('>')[0]
+                author=author[:-1]
+                break
+
         description=content.split('og:description" content=')[1][1:].split('>')[0]
         if description[-1]=='/':
             description=description[:-1].strip()
         description=description[:-1]
 
-        a=Article(title, url, img, description, sourceName)
+        a=Article(title, url, img, description, sourceName, author)
         return a
 
     except:
-        print("Article parsing error in buildArticle() for URL: "+url)
+        print("Article parsing error in buildArticle() for URL: "+url+" in source"+sourceName)
         return None
 
 

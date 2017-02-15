@@ -92,6 +92,56 @@ def removeDuplicates(h1s, h2s, h3s):
     
 
     return h1s, h2s, h3s
+
+
+
+def removeBadStories(source, badDescArr, badAuthorArr):
+
+    if badAuthorArr!=None:
+        for h1 in source.h1Arr:
+            for item in badAuthorArr:
+                if item in h1.author:
+                    source.h1Arr.remove(h1)
+                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
+                    source.h1Arr.append(source.h2Arr[0])
+                    source.h2Arr.remove(source.h2Arr[0])
+                    print('removed '+h1.title+' from '+source.name)
+        for h2 in source.h2Arr:
+            for item in badAuthorArr:
+                if item in h2.author:
+                    source.h2Arr.remove(h2)
+                    print('removed '+h2.title+' from '+source.name)
+
+        for h3 in source.h3Arr:
+            for item in badAuthorArr:
+                if item in h3.author:
+                    source.h3Arr.remove(h3)
+                    print('removed '+h3.title+' from '+source.name)
+
+    '''
+    if badDescArr!=None:
+        for h1 in source.h1Arr:
+            for item in badDescArr:
+                if item in h1.description:
+                    source.h1Arr.remove(h1)
+                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
+                    source.h1Arr.append(source.h2Arr[0])
+                    source.h2Arr.remove(source.h2Arr[0])
+                    print('removed '+h1.title+' from '+source.name)
+        for h2 in source.h2Arr:
+            for item in badDescArr:
+                if item in h2.description:
+                    source.h2Arr.remove(h2)
+                    print('removed '+h2.title+' from '+source.name)
+
+        for h3 in source.h3Arr:
+            for item in badDescArr:
+                if item in h3.description:
+                    source.h3Arr.remove(h3)
+                    print('removed '+h3.title+' from '+source.name)
+    '''
+
+    return source
     
 
 
@@ -148,13 +198,9 @@ def buildWeeklyStandard():
     wkl=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
-    #if it's in the h1 slot, bump up the first h2 into the h1 slot
-    for h1 in wkl.h1Arr:
-        if 'Matt Labash' in h1.description:
-            wkl.h1Arr.remove(h1)
-            wkl.h1Arr.append(wkl.h2Arr[0])
-            wkl.h2Arr.remove(wkl.h2Arr[0])
-            print('removed '+h1.title)
+    badDescArr=['Matt Labash']
+    badAuthorArr=['MATT LABASH']
+    wkl=removeBadStories(wkl, badDescArr, badAuthorArr)
 
     return wkl
 
