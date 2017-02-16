@@ -33,11 +33,15 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
 
     h2Arr=[]
     for x in h2URLs:
-        h2Arr.append(buildArticle(x, name))
+        a=buildArticle(x, name)
+        if a!=None:
+            h2Arr.append(a)
 
     h3Arr=[]
     for x in h3URLs:
-        h3Arr.append(buildArticle(x, name))
+        a=buildArticle(x, name)
+        if a!=None:
+            h3Arr.append(a)
 
     #BUILD THE NEWS SOURCE
     newsSource=NewsSource2(name, url, h1Arr, h2Arr, h3Arr)
@@ -107,6 +111,7 @@ def removeBadStories(source, badDescArr, badAuthorArr, badImgArr):
                     source.h1Arr.append(source.h2Arr[0])
                     source.h2Arr.remove(source.h2Arr[0])
                     print('removed '+h1.title+' from '+source.name+' Reason: bad author')
+
         for h2 in source.h2Arr:
             for item in badAuthorArr:
                 if item in h2.author:
@@ -223,9 +228,10 @@ def buildBlaze():
             h3s.append(url+x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    blz=buildNewsSource2(name, url, h1s, h2s, h3s)
 
-    blz=removeBadStories(blz, None, ['Tomi Lahren', 'Dana Loesch'], None)
+
+    blz=buildNewsSource2(name, url, h1s, h2s, h3s)
+    blz=removeBadStories(blz, None, ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -246,10 +252,20 @@ def buildCBS():
 
     #get main headline
     h1=content
-    h1=h1.split('<h1 class="title">', 1)[1]
-    h1=h1.split('<a href="', 1)[1]
-    h1=h1.split('"', 1)[0]
-    h1s=[url+h1]
+    if '<h1 class="title">' in content:
+        h1=h1.split('<h1 class="title">', 1)[1]
+        h1=h1.split('<a href="', 1)[1]
+        h1=h1.split('"', 1)[0]
+        h1s=[url+h1]
+    else:
+        #for cases where they lead with a video, pull the first h2 as h1
+        h1=h1.split('Big News Area Side Assets', 1)[1]
+        h1=h1.split('</ul></div>', 1)[0]
+        h1=h1.split('<li data-tb-region-item>', 1)[1]
+        h1=h1.split('<a href="', 1)[1]
+        x=h1.split('"', 1)[0]
+        h1s=[url+x]
+        
 
     #GET SECONDARY HEADLINES
     h2=content
@@ -446,6 +462,7 @@ def buildWeeklyStandard():
     wkl=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
+    ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
     badAuthorArr=['MATT LABASH']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
@@ -493,6 +510,12 @@ def buildFoxNews():
 
     h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #REMOVE BAD STORIES
+    badDescArr=None
+    badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
+    badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
+    fox=removeBadStories(fox, badDescArr, badAuthorArr, badImgArr)
 
     return fox
 
