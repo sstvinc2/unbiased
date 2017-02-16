@@ -19,6 +19,9 @@ def run():
     #nyt=buildNYT()
     #sourceList.append(nyt)
 
+    gdn=buildGuardian()
+    sourceList.append(gdn)
+
     blz=buildBlaze()
     sourceList.append(blz)
 

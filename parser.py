@@ -170,6 +170,52 @@ def removeBadStories(source, badDescArr, badAuthorArr, badImgArr):
     return source
 
 
+
+def buildGuardian():
+    url='http://www.theguardian.com/us-news'
+    name='The Guardian'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('<h1 ', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    #only the h1 and the two h2s have this, so split on it and grab
+    #the second two
+    h2=h2.split('<div class="fc-item__image-container u-responsive-ratio inlined-image">', 3)[2:]
+    for x in h2:
+        x=x.split('<h2 class="fc-item__title"><a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        h2s.append(x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('<div class="fc-slice-wrapper">', 1)[1]
+    h3=h3.split('<div class="js-show-more-placeholder">', 1)[0]
+    #this story section goes on forever; just grab the first 5
+    while '<h2 class="fc-item__title"><a href="' in h3:
+        h3=h3.split('<h2 class="fc-item__title"><a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+
+    gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
+    #gdn=removeBadStories(blz, None, None, None)
+
+    return gdn
+
+
 '''
 Function to fix the oddly short og:descriptions provided
 in The Blaze articles by grabbing the first portion of the story instead
@@ -464,7 +510,7 @@ def buildWeeklyStandard():
     #REMOVE BAD STORIES
     ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
-    badAuthorArr=['MATT LABASH']
+    badAuthorArr=['MATT LABASH', 'TWS PODCAST']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
     wkl=removeBadStories(wkl, badDescArr, badAuthorArr, badImgArr)
 

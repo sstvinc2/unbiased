@@ -22,11 +22,18 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
     f.close()
 
     try:
-        #because the quote separator could be ' or ", trim to just before it then lop it off
-        img=content.split('og:image" content=')[1][1:].split('>')[0]
-        if img[-1]=='/':
-            img=img[:-1].strip()
-        img=img[:-1]
+        if sourceName=='The Guardian':
+            #The Guardian puts an identifying banner on their og:images
+            #grab the main image from the page instead
+            img=content.split('<img class="maxed', 1)[1]
+            img=img.split('src="', 1)[1].split('"')[0]
+        else:
+            img=content.split('og:image" content=')[1][1:].split('>')[0]
+            if img[-1]=='/':
+                #because the quote separator could be ' or ", 
+                #trim to just before it then lop it off
+                img=img[:-1].strip()
+            img=img[:-1]
 
         title=content.split('og:title" content=')[1][1:].split('>')[0]
         if title[-1]=='/':
