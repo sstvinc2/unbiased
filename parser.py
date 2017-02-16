@@ -225,7 +225,7 @@ def buildBlaze():
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
 
-    blz=removeBadStories(blz, None, ['Tomi Lahren'], None)
+    blz=removeBadStories(blz, None, ['Tomi Lahren', 'Dana Loesch'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -323,6 +323,11 @@ def buildNBC():
         if h1 not in x:
             h3s.append(url+x)
 
+    #adjust for today.com urls
+    for arr in [h1s, h2s, h3s]:
+        for i in range(len(arr)):
+            if 'today.com' in arr[i]:
+                arr[i]=arr[i].split('.com', 1)[1]
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     nbc=buildNewsSource2(name, url, h1s, h2s, h3s)
@@ -548,6 +553,8 @@ def buildNYT():
         x=h2.split('"', 1)[0]
         if (h1 not in x) and (x not in h2s):
             h2s.append(x)
+
+    print(h2s)
 
     #GET TERTIARY HEADLINES
     h3=content

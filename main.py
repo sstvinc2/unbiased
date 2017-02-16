@@ -16,8 +16,8 @@ def run():
     sourceList=[]
 
 
-    nyt=buildNYT()
-    sourceList.append(nyt)
+    #nyt=buildNYT()
+    #sourceList.append(nyt)
 
     blz=buildBlaze()
     sourceList.append(blz)
