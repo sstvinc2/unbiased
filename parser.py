@@ -225,6 +225,8 @@ def buildBlaze():
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
 
+    blz=removeBadStories(blz, None, ['Tomi Lahren'], None)
+
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
     blz.h1Arr=blazeFixDesc(blz.h1Arr)
@@ -502,10 +504,17 @@ def buildNYT():
     #this will likely need if/else logic
     h1=content
 
-    #This is with a large headline over a and b columns
-    h1=h1.split('story theme-summary banner', 1)[1]
-    h1=h1.split('<a href="', 1)[1]
-    h1=h1.split('"', 1)[0]
+    if 'story theme-summary banner' in h1:
+        #This is with a large headline over a and b columns
+        h1=h1.split('story theme-summary banner', 1)[1]
+        h1=h1.split('<a href="', 1)[1]
+        h1=h1.split('"', 1)[0]
+    else:
+        #otherwise, pull the first story from the A column
+        h1=h1.split('<div class="a-column column">', 1)[1]
+        h1=h1.split('<a href="', 1)[1].split('"', 1)[0]
+    h1s=[h1]
+        
 
     #GET SECONDARY HEADLINES
     #This comes from the a column or b column, above the break
@@ -557,7 +566,7 @@ def buildNYT():
         if (h1 not in x) and (x not in h3s):
             h3s.append(x)
 
-    h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     nyt=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     return nyt

@@ -15,6 +15,10 @@ def main():
 def run():
     sourceList=[]
 
+
+    nyt=buildNYT()
+    sourceList.append(nyt)
+
     blz=buildBlaze()
     sourceList.append(blz)
 
@@ -29,9 +33,6 @@ def run():
 
     wkl=buildWeeklyStandard()
     sourceList.append(wkl)
-
-    #nyt=buildNYT()
-    #sourceList.append(nyt)
 
     fox=buildFoxNews()
     sourceList.append(fox)

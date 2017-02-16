@@ -34,23 +34,33 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
         title=title[:-1]
 
         author=''
-        authorTags=['article:author', 'dc.creator']
-        for tag in authorTags:
-            if tag in content:
-                author=content.split(tag+'" content=')[1][1:].split('>')[0]
-                author=author[:-1]
-                break
+        if sourceName!='The Blaze':
+            authorTags=['article:author', 'dc.creator']
+            for tag in authorTags:
+                if tag in content:
+                    author=content.split(tag+'" content=')[1][1:].split('>')[0]
+                    author=author[:-1]
+                    break
+        #handle The Blaze
+        else:
+            if 'class="article-author">' in content:
+                author=content.split('class="article-author">')[1].split('<')[0]
+            elif 'class="article-author" href="' in content:
+                author=content.split('class="article-author" href="')[1]
+                author=author.split('>')[1].split('<')[0].strip()
 
         description=content.split('og:description" content=')[1][1:].split('>')[0]
         if description[-1]=='/':
             description=description[:-1].strip()
         description=description[:-1]
+        #strip out self-references
+        description=description.replace(sourceName, 'our')
 
         a=Article(title, url, img, description, sourceName, author)
         return a
 
     except:
-        print("Article parsing error in buildArticle() for URL: "+url+" in source"+sourceName)
+        print("Article parsing error in buildArticle() for URL: "+url+" in source "+sourceName+'\n')
         return None
 
 
@@ -63,7 +73,7 @@ def buildOutput(newsSourceArr):
     #set the random order for sources
     h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
     #For h2s and h3s, select N random sources (can repeat), then
-    #a non-repetitive random article from within that source
+    #a non-repetitive random article from within 
     h2RandomPairs=[]
     while len(h2RandomPairs) < 6:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
