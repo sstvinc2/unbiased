@@ -20,7 +20,7 @@ a:link, a:visited, a:hover, a:active {
     padding:.5em 0 1em;
     margin-bottom:1em;
     border-bottom:3px solid #f00;
-    background:#44f;
+    background:#44a;
 }
 
 .title{
@@ -44,6 +44,7 @@ a:link, a:visited, a:hover, a:active {
 #timestamp{
     margin:.5em 0 0 0;
     font-size:.8em;
+    color:#cc6;
 }
 
 #page-container{
