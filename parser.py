@@ -180,7 +180,7 @@ def buildGuardian():
 
     #get main headline
     h1=content
-    h1=h1.split('<h1 ', 1)[1]
+    h1=h1.split('<h1', 1)[1]
     h1=h1.split('<a href="', 1)[1]
     h1=h1.split('"', 1)[0]
     h1s=[h1]
@@ -205,13 +205,12 @@ def buildGuardian():
     while '<h2 class="fc-item__title"><a href="' in h3:
         h3=h3.split('<h2 class="fc-item__title"><a href="', 1)[1]
         x=h3.split('"', 1)[0]
-        if h1 not in x:
-            h3s.append(x)
+        h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
-    #gdn=removeBadStories(blz, None, None, None)
+    gdn=removeBadStories(gdn, ['Tom McCarthy'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
     return gdn
 
@@ -359,7 +358,9 @@ def buildNBC():
     h1=h1.split('panel_hero', 1)[1]
     h1=h1.split('<a href="', 1)[1]
     h1=h1.split('"', 1)[0]
-    h1s=[url+h1]
+    if '.com' not in h1:
+        h1=url+h1
+    h1s=[h1]
 
     #GET SECONDARY HEADLINES
     h2=content
@@ -371,7 +372,9 @@ def buildNBC():
         h2=h2.split('<a href="', 1)[1]
         x=h2.split('"', 1)[0]
         if h1 not in x:
-            h2s.append(url+x)
+            if '.com' not in x:
+                x=url+x
+            h2s.append(x)
 
     #GET TERTIARY HEADLINES
     h3=content
@@ -383,7 +386,9 @@ def buildNBC():
         h3=h3.split('<a href="', 1)[1]
         x=h3.split('"', 1)[0]
         if h1 not in x:
-            h3s.append(url+x)
+            if '.com' not in x:
+                x=url+x
+            h3s.append(x)
 
     #adjust for today.com urls
     for arr in [h1s, h2s, h3s]:
@@ -510,7 +515,7 @@ def buildWeeklyStandard():
     #REMOVE BAD STORIES
     ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
-    badAuthorArr=['MATT LABASH', 'TWS PODCAST']
+    badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
     wkl=removeBadStories(wkl, badDescArr, badAuthorArr, badImgArr)
 

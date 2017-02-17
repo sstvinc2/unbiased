@@ -25,8 +25,20 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
         if sourceName=='The Guardian':
             #The Guardian puts an identifying banner on their og:images
             #grab the main image from the page instead
-            img=content.split('<img class="maxed', 1)[1]
-            img=img.split('src="', 1)[1].split('"')[0]
+
+            #scenario 1: regular image
+            if '<img class="maxed' in content:
+                img=content.split('<img class="maxed', 1)[1]
+                img=img.split('src="', 1)[1].split('"')[0]
+            #scenario 2: video in image spot
+            elif '<meta itemprop="image"' in content:
+                img=content.split('<meta itemprop="image"', 1)[1]
+                img=img.split('content="', 1)[1].split('"')[0]
+            #scenario 3: photo essays
+            elif '<img class="immersive-main-media__media"' in content:
+                img=content.split('<img class="immersive-main-media__media"', 1)[1]
+                img=img.split('src="', 1)[1].split('"')[0]
+            
         else:
             img=content.split('og:image" content=')[1][1:].split('>')[0]
             if img[-1]=='/':
