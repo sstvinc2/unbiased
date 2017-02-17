@@ -100,73 +100,65 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 
-def removeBadStories(source, badDescArr, badAuthorArr, badImgArr):
+def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr):
 
-    if badAuthorArr!=None:
-        for h1 in source.h1Arr:
-            for item in badAuthorArr:
-                if item in h1.author:
-                    source.h1Arr.remove(h1)
-                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
-                    source.h1Arr.append(source.h2Arr[0])
-                    source.h2Arr.remove(source.h2Arr[0])
-                    print('removed '+h1.title+' from '+source.name+' Reason: bad author')
+    arr=[source.h1Arr, source.h2Arr, source.h3Arr]
 
-        for h2 in source.h2Arr:
-            for item in badAuthorArr:
-                if item in h2.author:
-                    source.h2Arr.remove(h2)
-                    print('removed '+h2.title+' from '+source.name+' Reason: bad author')
-
-        for h3 in source.h3Arr:
-            for item in badAuthorArr:
-                if item in h3.author:
-                    source.h3Arr.remove(h3)
-                    print('removed '+h3.title+' from '+source.name+' Reason: bad author')
+    if badTitleArr!=None:
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                for item in badTitleArr:
+                    if item in hed.title:
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Title ('+item+')\n')
+                    
 
     if badDescArr!=None:
-        for h1 in source.h1Arr:
-            for item in badDescArr:
-                if item in h1.description:
-                    source.h1Arr.remove(h1)
-                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
-                    source.h1Arr.append(source.h2Arr[0])
-                    source.h2Arr.remove(source.h2Arr[0])
-                    print('removed '+h1.title+' from '+source.name+' Reason: bad description')
-        for h2 in source.h2Arr:
-            for item in badDescArr:
-                if item in h2.description:
-                    source.h2Arr.remove(h2)
-                    print('removed '+h2.title+' from '+source.name+' Reason: bad description')
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                for item in badDescArr:
+                    if item in hed.description:
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Description ('+item+')\n')
+                    
 
-        for h3 in source.h3Arr:
-            for item in badDescArr:
-                if item in h3.description:
-                    source.h3Arr.remove(h3)
-                    print('removed '+h3.title+' from '+source.name+' Reason: bad description')
+    if badAuthorArr!=None:
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                for item in badAuthorArr:
+                    if item in hed.author:
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Author ('+item+')\n')
+                    
 
     if badImgArr!=None:
-        for h1 in source.h1Arr:
-            for item in badImgArr:
-                if item in h1.img:
-                    source.h1Arr.remove(h1)
-                    #if it's in the h1 slot, bump up the first h2 into the h1 slot
-                    source.h1Arr.append(source.h2Arr[0])
-                    source.h2Arr.remove(source.h2Arr[0])
-                    print('removed '+h1.title+' from '+source.name+' Reason: bad image')
-
-        for h2 in source.h2Arr:
-            for item in badImgArr:
-                if item in h2.img:
-                    source.h2Arr.remove(h2)
-                    print('removed '+h2.title+' from '+source.name+' Reason: bad image')
-
-        for h3 in source.h3Arr:
-            for item in badImgArr:
-                if item in h3.img:
-                    source.h3Arr.remove(h3)
-                    print('removed '+h3.title+' from '+source.name+' Reason: bad image')
-
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                for item in badImgArr:
+                    if item in hed.img:
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Image ('+item+')\n')
+                    
     return source
 
 
@@ -210,7 +202,7 @@ def buildGuardian():
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
-    gdn=removeBadStories(gdn, ['Tom McCarthy'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
+    gdn=removeBadStories(gdn, None, ['Tom McCarthy'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
     return gdn
 
@@ -276,7 +268,7 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, None, ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
+    blz=removeBadStories(blz, None, None, ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -513,11 +505,12 @@ def buildWeeklyStandard():
     wkl=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
+    badTitleArr=None
     ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
     badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
-    wkl=removeBadStories(wkl, badDescArr, badAuthorArr, badImgArr)
+    wkl=removeBadStories(wkl, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
     return wkl
 
@@ -563,10 +556,11 @@ def buildFoxNews():
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
+    badTitleArr=['O&#039;Reilly']
     badDescArr=None
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
-    fox=removeBadStories(fox, badDescArr, badAuthorArr, badImgArr)
+    fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
     return fox
 
