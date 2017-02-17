@@ -508,11 +508,62 @@ def buildWeeklyStandard():
     badTitleArr=None
     ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
-    badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN']
+    badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN', 'Steven J. Lenzner']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
     wkl=removeBadStories(wkl, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
     return wkl
+
+
+
+
+def buildNPR():
+    url='http://npr.com'
+    name='NPR'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+    
+    #get main headline
+    h1=content
+    h1=h1.split('<div id="contentWrap">', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('<article class="hp-item attachment volume-low">', 1)[1]
+    h2=h2.split('</section>', 1)[0]
+    while 'href="' in h2:
+        h2=h2.split('href="', 1)[1]
+        x=h2.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('<ul id="nib-list">', 1)[1]
+    h3=h3.split('</ul>', 1)[0]
+    while 'href=\'' in h3:
+        h3=h3.split('href=\'', 1)[1]
+        x=h3.split('\'', 1)[0]
+        if h1 not in x:
+            h3s.append(x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    npr=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #REMOVE BAD STORIES
+    badTitleArr=None
+    badDescArr=None
+    badAuthorArr=None
+    badImgArr=None
+    #npr=removeBadStories(npr, badTitleArr, badDescArr, badAuthorArr, badImgArr)
+
+    return npr
 
 
 
