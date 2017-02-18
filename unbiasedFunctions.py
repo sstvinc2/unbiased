@@ -103,6 +103,7 @@ def buildOutput(newsSourceArr):
     h3RandomPairs=[]
     while len(h3RandomPairs) < 12:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
+        print(newsSourceArr[x].name)
         y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
         pair=[x,y]
         if not pair in h3RandomPairs:

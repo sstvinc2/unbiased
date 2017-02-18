@@ -15,9 +15,17 @@ def main():
 def run():
     sourceList=[]
 
+    '''
 
-    #nyt=buildNYT()
-    #sourceList.append(nyt)
+    SOURCES TO ADD NEXT:
+    -ABC
+    -REUTERS
+    -THE HILL
+
+    '''
+
+    nyt=buildNYT()
+    sourceList.append(nyt)
 
     npr=buildNPR()
     sourceList.append(npr)

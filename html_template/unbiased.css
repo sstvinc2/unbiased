@@ -19,8 +19,8 @@ a:link, a:visited, a:hover, a:active {
     text-align:center;
     padding:.5em 0 1em;
     margin-bottom:1em;
-    border-bottom:3px solid #f00;
-    background:#44a;
+    border-bottom:3px solid #BB133E;
+    background:#002147;
 }
 
 .title{
@@ -53,6 +53,12 @@ a:link, a:visited, a:hover, a:active {
     margin-right:auto;
 }
 
+@media only screen and (max-width:900px){
+    #page-container{
+	width:100%
+    }
+}
+
 #top-stories{
     width:95%;
     display:block;
@@ -61,7 +67,7 @@ a:link, a:visited, a:hover, a:active {
     margin-left:auto;
     margin-right:auto;
     text-align:center;
-    border-bottom: 3px solid #f00;
+    border-bottom: 3px solid #BB133E;
     margin-bottom: 10px;
 }
 
@@ -78,6 +84,14 @@ a:link, a:visited, a:hover, a:active {
     border:2px solid #ccc;
 }
 
+@media only screen and (max-width:500px){
+    .top-story{
+	display:block;
+	width:auto;
+	height:auto;
+    }
+}
+
 .top-stories-img{
     width:350px;
     height:200px;
@@ -86,6 +100,13 @@ a:link, a:visited, a:hover, a:active {
     background-position: center center;
     margin:0 auto;
 }
+
+@media only screen and (max-width:500px){
+    .top-stories-img{
+	width:auto;
+    }
+}
+    
 
 .top-stories-hed{
     font-weight:bold;
@@ -109,6 +130,13 @@ a:link, a:visited, a:hover, a:active {
     float:left;
 }
 
+@media only screen and (max-width:500px){
+    #middle-stories{
+	width:100%;
+	float:none;
+    }
+}
+
 .middle-story{
     margin:5px 10px;
     padding:10px;
@@ -118,6 +146,12 @@ a:link, a:visited, a:hover, a:active {
     float:left;
 }
 
+@media only screen and (max-width:500px){
+    .middle-story{
+	width:auto;
+    }
+}
+
 .middle-stories-img{
     width:150px;
     height:100px;
@@ -125,6 +159,7 @@ a:link, a:visited, a:hover, a:active {
     background-size: cover;
     background-position: center center;
     float:left;
+    max-width:35%;
 }
 
 .middle-stories-hed{
@@ -132,6 +167,12 @@ a:link, a:visited, a:hover, a:active {
     float:left;
     width:300px;
     margin-left:10px;
+}
+
+@media only screen and (max-width:500px){
+    .middle-stories-hed{
+	max-width:60%;
+    }
 }
 
 #bottom-stories{
@@ -142,6 +183,14 @@ a:link, a:visited, a:hover, a:active {
     float:left;
     width:350px;
     border:5px solid #ddd;
+}
+
+@media only screen and (max-width:900px){
+    #bottom-stories{
+	width:auto;
+	border-width:3px;
+	float:none;
+    }
 }
 
 .bottom-story{

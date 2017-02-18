@@ -100,7 +100,7 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 
-def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr):
+def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr=None):
 
     arr=[source.h1Arr, source.h2Arr, source.h3Arr]
 
@@ -158,6 +158,19 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr):
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
                         print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Image ('+item+')\n')
+                    
+    if badURLArr!=None:
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                for item in badURLArr:
+                    if item in hed.url:
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: URL ('+item+')\n')
                     
     return source
 
@@ -508,7 +521,7 @@ def buildWeeklyStandard():
     badTitleArr=None
     ## if flagged again, remove Micah Mattix
     badDescArr=['Matt Labash']
-    badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN', 'Steven J. Lenzner']
+    badAuthorArr=['MATT LABASH', 'TWS PODCAST', 'ERIC FELTEN', 'Steven J. Lenzner', 'MARK HEMINGWAY']
     badImgArr=['http://www.weeklystandard.com/s3/tws15/images/twitter/tws-twitter_1024x512.png']
     wkl=removeBadStories(wkl, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
@@ -518,7 +531,7 @@ def buildWeeklyStandard():
 
 
 def buildNPR():
-    url='http://npr.com'
+    url='http://www.npr.org/sections/news/'
     name='NPR'
 
     #DOWNLOAD HOMEPAGE CONTENT
@@ -526,7 +539,7 @@ def buildNPR():
     
     #get main headline
     h1=content
-    h1=h1.split('<div id="contentWrap">', 1)[1]
+    h1=h1.split('<a id="mainContent">', 1)[1]
     h1=h1.split('<a href="', 1)[1]
     h1=h1.split('"', 1)[0]
     h1s=[h1]
@@ -534,10 +547,11 @@ def buildNPR():
     #GET SECONDARY HEADLINES
     h2=content
     h2s=[]
-    h2=h2.split('<article class="hp-item attachment volume-low">', 1)[1]
-    h2=h2.split('</section>', 1)[0]
-    while 'href="' in h2:
-        h2=h2.split('href="', 1)[1]
+    h2=h2.split('<article class="item has-image">', 1)[1]
+    h2=h2.split('<!-- END CLASS=\'FEATURED-3-UP\' -->', 1)[0]
+    while '<article class="item has-image">' in h2:
+        h2=h2.split('<article class="item has-image">', 1)[1]
+        h2=h2.split('<a href="', 1)[1]
         x=h2.split('"', 1)[0]
         if h1 not in x:
             h2s.append(x)
@@ -545,15 +559,16 @@ def buildNPR():
     #GET TERTIARY HEADLINES
     h3=content
     h3s=[]
-    h3=h3.split('<ul id="nib-list">', 1)[1]
-    h3=h3.split('</ul>', 1)[0]
-    while 'href=\'' in h3:
-        h3=h3.split('href=\'', 1)[1]
-        x=h3.split('\'', 1)[0]
+    h3=h3.split('<div id="overflow" class="list-overflow"', 1)[1]
+    h3=h3.split('<!-- END ID="OVERFLOW" CLASS="LIST-OVERFLOW"', 1)[0]
+    while '<h2 class="title"><a href="' in h3:
+        h3=h3.split('<h2 class="title"><a href="', 1)[1]
+        x=h3.split('"', 1)[0]
         if h1 not in x:
             h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+
     npr=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
@@ -611,7 +626,8 @@ def buildFoxNews():
     badDescArr=None
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
-    fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr)
+    badURLArr=['http://www.foxnews.com/opinion']
+    fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
 
     return fox
 
@@ -672,8 +688,6 @@ def buildNYT():
         x=h2.split('"', 1)[0]
         if (h1 not in x) and (x not in h2s):
             h2s.append(x)
-
-    print(h2s)
 
     #GET TERTIARY HEADLINES
     h3=content
