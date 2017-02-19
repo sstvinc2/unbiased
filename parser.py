@@ -176,6 +176,53 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
 
 
 
+
+def buildTheHill():
+    url='http://thehill.com'
+    name='The Hill'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+
+    #get main headline
+    h1=content
+    h1=h1.split('<div class="headline-story-image">', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('<div class="section-top-content">', 1)[1]
+    h2=h2.split('</ul>', 1)[0]
+    while '<div class="top-story-item' in h2 and len(h2s)<4:
+        h2=h2.split('<div class="top-story-item', 1)[1]
+        x=h2.split('<a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('<div class="section-top-content">', 1)[1]
+    h3=h3.split('</ul>', 1)[0]
+    while '<div class="top-story-item small' in h3:
+        h3=h3.split('<div class="top-story-item small', 1)[1]
+        x=h3.split('<a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        h3s.append(url+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+    hil=buildNewsSource2(name, url, h1s, h2s, h3s)
+    #hil=removeBadStories(gdn, None, None, None, None)
+
+    return hil
+
+
+
+
+
 def buildGuardian():
     url='http://www.theguardian.com/us-news'
     name='The Guardian'
@@ -626,7 +673,7 @@ def buildFoxNews():
     badDescArr=None
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
-    badURLArr=['http://www.foxnews.com/opinion']
+    badURLArr=['http://www.foxnews.com/opinion', 'videos.foxnews.com']
     fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
 
     return fox

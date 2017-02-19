@@ -2,16 +2,17 @@ from unbiasedObjects import *
 import os
 import random
 import time
+import re
 
 
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
-    '''#PRINT DEBUGGING
-    print(sourceName)
-    print(url)
-    print()
-    '''
+    debugging=False
+    if debugging:
+        print(sourceName)
+        print(url)
+        print()
     
     #download url
     os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
@@ -47,33 +48,59 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
                 img=img[:-1].strip()
             img=img[:-1]
 
+        if debugging:
+            print(img)
+
         title=content.split('og:title" content=')[1][1:].split('>')[0]
         if title[-1]=='/':
             title=title[:-1].strip()
         title=title[:-1]
 
+        if debugging:
+            print(title)
+
+
         author=''
-        if sourceName!='The Blaze':
-            authorTags=['article:author', 'dc.creator']
-            for tag in authorTags:
-                if tag in content:
-                    author=content.split(tag+'" content=')[1][1:].split('>')[0]
-                    author=author[:-1]
-                    break
-        #handle The Blaze
-        else:
+        if sourceName=='The Blaze':
             if 'class="article-author">' in content:
                 author=content.split('class="article-author">')[1].split('<')[0]
             elif 'class="article-author" href="' in content:
                 author=content.split('class="article-author" href="')[1]
                 author=author.split('>')[1].split('<')[0].strip()
+        else:
+            authorTags=['article:author', 'dc.creator', 'property="author']
+            for tag in authorTags:
+                if tag in content:
+                    author=content.split(tag+'" content=')[1][1:].split('>')[0]
+                    author=author[:-1]
+                    #trim an extra quotation mark for The Hill
+                    if sourceName=='The Hill':
+                        author=author.split('"', 1)[0]
+                    break
 
-        description=content.split('og:description" content=')[1][1:].split('>')[0]
-        if description[-1]=='/':
-            description=description[:-1].strip()
-        description=description[:-1]
+        if debugging:
+            print(author)
+
+
+        if 'og:description' in content:
+            description=content.split('og:description" content=')[1][1:].split('>')[0]
+            if description[-1]=='/':
+                description=description[:-1].strip()
+            description=description[:-1]
+        else:
+            if sourceName=='The Hill':
+                description=content.split('div class="field-items"')[-1]
+                description=re.sub('<[^<]+?>', '', description)
+                description=description[1:200]
+            else:
+                print("SHOULDN'T GET HERE")
+
         #strip out self-references
         description=description.replace(sourceName, 'our')
+
+        if debugging:
+            print(description)
+
 
         a=Article(title, url, img, description, sourceName, author)
         return a

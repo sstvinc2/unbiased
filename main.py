@@ -20,9 +20,11 @@ def run():
     SOURCES TO ADD NEXT:
     -ABC
     -REUTERS
-    -THE HILL
 
     '''
+
+    hil=buildTheHill()
+    sourceList.append(hil)
 
     nyt=buildNYT()
     sourceList.append(nyt)
@@ -57,8 +59,9 @@ def run():
     cbs=buildCBS()
     sourceList.append(cbs)
 
-    wkl=buildWeeklyStandard()
-    sourceList.append(wkl)
+    #Weekly standard just doesn't update frequently enough
+    #wkl=buildWeeklyStandard()
+    #sourceList.append(wkl)
 
     fox=buildFoxNews()
     sourceList.append(fox)
