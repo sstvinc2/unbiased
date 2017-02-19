@@ -106,7 +106,11 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
         return a
 
     except:
-        print("Article parsing error in buildArticle() for URL: "+url+" in source "+sourceName+'\n')
+        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
+        print('\tARTICLE PARSING ERROR')
+        print('SOURCE: '+sourceName)
+        print('URL: \t'+url)
+        print('^^^^^^^^^^^^^^^^^^^^^^^^^ \n\n')
         return None
 
 
@@ -131,11 +135,13 @@ def buildOutput(newsSourceArr):
     while len(h3RandomPairs) < 12:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
         print(newsSourceArr[x].name)
-        y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
-        pair=[x,y]
-        if not pair in h3RandomPairs:
-            h3RandomPairs.append(pair)
-
+        if len(newsSourceArr[x].h3Arr) > 0:
+            y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
+            pair=[x,y]
+            if not pair in h3RandomPairs:
+                h3RandomPairs.append(pair)
+        else:
+            continue
 
     #replace html template locations with data from newsSourceArr
     for i in range(len(h1RandomSources)):

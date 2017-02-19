@@ -100,6 +100,16 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 
+def removalNotification(source, title, reason, value):
+    print('*************************')
+    print('\t\tSTORY REMOVED')
+    print('SOURCE: '+source)
+    print('TITLE: \t'+title)
+    print('REASON: '+reason)
+    print('VALUE: \t'+value)
+    print('*************************\n\n')
+
+
 def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr=None):
 
     arr=[source.h1Arr, source.h2Arr, source.h3Arr]
@@ -115,7 +125,7 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
                         if i==0:
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
-                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Title ('+item+')\n')
+                        removalNotification(source.name, hed.title, 'Title', item)
                     
 
     if badDescArr!=None:
@@ -129,7 +139,7 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
                         if i==0:
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
-                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Description ('+item+')\n')
+                        removalNotification(source.name, hed.title, 'Description', item)
                     
 
     if badAuthorArr!=None:
@@ -143,7 +153,7 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
                         if i==0:
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
-                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Author ('+item+')\n')
+                        removalNotification(source.name, hed.title, 'Author', item)
                     
 
     if badImgArr!=None:
@@ -157,7 +167,7 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
                         if i==0:
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
-                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: Image ('+item+')\n')
+                        removalNotification(source.name, hed.title, 'Image', item)
                     
     if badURLArr!=None:
         for i in range(len(arr)):
@@ -170,7 +180,7 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
                         if i==0:
                             arr[0].append(arr[1][0])
                             arr[1].remove(arr[1][0])
-                        print('Removed:\n'+source.name+'\n'+hed.title+' from '+source.name+'\nReason: URL ('+item+')\n')
+                        removalNotification(source.name, hed.title, 'URL', item)
                     
     return source
 
@@ -328,7 +338,7 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, None, None, ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
+    blz=removeBadStories(blz, None, ['Lawrence Jones'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead

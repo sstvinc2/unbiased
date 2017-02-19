@@ -42,8 +42,6 @@ def run():
             h1=gdn.h1Arr[0]
         except:
             print('The Guardian: build error. Looping again.')
-        if looped:
-            print('Guardian loop')
         looped=True
     sourceList.append(gdn)
 
