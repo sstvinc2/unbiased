@@ -12,7 +12,11 @@ body{
 a:link, a:visited, a:hover, a:active {
 			color: #00f;
 			text-decoration:none;
-		    }
+			    }
+
+a:hover{
+    cursor:pointer;
+}
 
 #page-header{
     width:100%;
@@ -117,6 +121,7 @@ a:link, a:visited, a:hover, a:active {
     font-weight:bold;
     font-size:1.35em;
     margin:10px 10px 0;
+    color:#00f;
 }
 
 .top-stories-desc{
@@ -172,6 +177,7 @@ a:link, a:visited, a:hover, a:active {
     float:left;
     width:300px;
     margin-left:10px;
+    color:#00f;
 }
 
 @media only screen and (max-width:500px){
@@ -200,6 +206,7 @@ a:link, a:visited, a:hover, a:active {
 
 .bottom-story{
     padding:15px 0;
+    color:#00f;
 }
 
 #sources{
