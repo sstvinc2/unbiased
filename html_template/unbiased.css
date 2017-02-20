@@ -71,17 +71,22 @@ a:link, a:visited, a:hover, a:active {
     margin-bottom: 10px;
 }
 
+.row{
+    display:flex;
+}
+
 .top-story{
     display:inline-block;
     vertical-align:top;
     text-align:left;
     width:360px;
-    height:352px;
+    height:auto;
     overflow:hidden;
     background:#fff;
     margin:10px;
     padding:10px;
     border:2px solid #ccc;
+    flex:1;
 }
 
 @media only screen and (max-width:500px){
