@@ -204,7 +204,8 @@ a:hover{
     }
 }
 
-.bottom-story{
+.bottom-story{    color:#00f;
+
     padding:15px 0;
     color:#00f;
 }
