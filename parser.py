@@ -93,7 +93,8 @@ def removeDuplicates(h1s, h2s, h3s):
             if (h3s[i] in h1and2[k]) or (h1and2[k] in h3s[i]):
                 removeArr.append(h3s[i])
     for x in removeArr:
-        h3s.remove(x)
+        if x in h3s:
+            h3s.remove(x)
     
 
     return h1s, h2s, h3s
@@ -225,7 +226,7 @@ def buildTheHill():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     hil=buildNewsSource2(name, url, h1s, h2s, h3s)
-    #hil=removeBadStories(gdn, None, None, None, None)
+    hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp'], None, None)
 
     return hil
 
@@ -234,7 +235,7 @@ def buildTheHill():
 
 
 def buildGuardian():
-    url='http://www.theguardian.com/us-news'
+    url='http://www.theguardian.com/us'
     name='The Guardian'
 
     #DOWNLOAD HOMEPAGE CONTENT
@@ -270,7 +271,7 @@ def buildGuardian():
         h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-
+    
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
     gdn=removeBadStories(gdn, None, ['Tom McCarthy'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
@@ -338,7 +339,7 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, None, ['Lawrence Jones'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka'], None)
+    blz=removeBadStories(blz, None, ['Lawrence Jones'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -400,6 +401,7 @@ def buildCBS():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     cbs=buildNewsSource2(name, url, h1s, h2s, h3s)
+    cbs=removeBadStories(cbs, ['60 Minutes'], None, None, None, None)
 
     return cbs
 
@@ -460,6 +462,8 @@ def buildNBC():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     nbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+    nbc=removeBadStories(nbc, None, ['First Read'], None, None, None)
+
 
     return nbc
 
@@ -709,12 +713,12 @@ def buildNYT():
     else:
         #otherwise, pull the first story from the A column
         h1=h1.split('<div class="a-column column">', 1)[1]
+        h1=h1.split('<article class="story theme-summary lede"', 1)[1]
         h1=h1.split('<a href="', 1)[1].split('"', 1)[0]
     h1s=[h1]
         
 
     #GET SECONDARY HEADLINES
-    #This comes from the a column or b column, above the break
     h2=content
     h2s=[]
     #A column
@@ -731,26 +735,33 @@ def buildNYT():
         if h1 not in x:
             h2s.append(x)
 
+    #GET TERTIARY HEADLINES
+    h3s=[]
     #B column
-    h2=content
-    h2=h2.split('<div class="b-column column">', 1)[1]
-    h2=h2.split('<!-- close b-column -->', 1)[0]
+    h3=content
+    h3=h3.split('<div class="b-column column">', 1)[1]
+    h3=h3.split('<!-- close b-column -->', 1)[0]
     #remove "collection" sets
-    while '<div class="collection headlines">' in h2:
-        arr=h2.split('<div class="collection headlines">', 1)
-        h2=arr[0]+arr[1].split('</ul>', 1)[1]
+    while '<div class="collection headlines">' in h3:
+        arr=h3.split('<div class="collection headlines">', 1)
+        h3=arr[0]+arr[1].split('</ul>', 1)[1]
     #Grab the remaining URLs
-    while '<a href="' in h2:
-        h2=h2.split('<a href="', 1)[1]
-        x=h2.split('"', 1)[0]
-        if (h1 not in x) and (x not in h2s):
-            h2s.append(x)
+    while '<a href="' in h3:
+        h3=h3.split('<a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if (h1 not in x) and (x not in h3s):
+            h3s.append(x)
 
+    '''
     #GET TERTIARY HEADLINES
     h3=content
     h3s=[]
-    h3=h3.split('<!-- close lede-package-region -->', 1)[1]
-    h3=h3.split('<a href="https://www.nytimes.com/tips">', 1)[0]
+    if '<!-- close lede-package-region -->' in h3:
+        h3=h3.split('<!-- close lede-package-region -->', 1)[1]
+        h3=h3.split('<a href="https://www.nytimes.com/tips">', 1)[0]
+    elif '/video/the-daily-360' in h3:
+        h3=h3.split('/video/the-daily-360')[-1]
+        h3=h3.split('More News', 1)[0]
     #remove "collection" sets
     while '<div class="collection headlines">' in h2:
         arr=h3.split('<div class="collection headlines">', 1)
@@ -762,10 +773,14 @@ def buildNYT():
         x=h3.split('"', 1)[0]
         if (h1 not in x) and (x not in h3s):
             h3s.append(x)
-
+    '''
+            
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    nyt=buildNewsSource2(name, url, h1s, h2s, h3s)
 
+    nyt=buildNewsSource2(name, url, h1s, h2s, h3s)
+    nyt=removeBadStories(nyt, None, None, None, None, ['https://www.nytimes.com/section/magazine', 'https://www.nytimes.com/newsletters/the-interpreter'])
+
+    
     return nyt
 
 

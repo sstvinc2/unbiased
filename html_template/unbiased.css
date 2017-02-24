@@ -94,6 +94,9 @@ a:hover{
 }
 
 @media only screen and (max-width:500px){
+    .row{
+	display:block;
+    }
     .top-story{
 	display:block;
 	width:auto;
