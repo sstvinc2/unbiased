@@ -226,7 +226,7 @@ def buildTheHill():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     hil=buildNewsSource2(name, url, h1s, h2s, h3s)
-    hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp'], None, None)
+    hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp', 'Juan Williams'], None, None)
 
     return hil
 
@@ -235,7 +235,7 @@ def buildTheHill():
 
 
 def buildGuardian():
-    url='http://www.theguardian.com/us'
+    url='http://www.theguardian.com/us-news'
     name='The Guardian'
 
     #DOWNLOAD HOMEPAGE CONTENT
@@ -253,7 +253,7 @@ def buildGuardian():
     h2s=[]
     #only the h1 and the two h2s have this, so split on it and grab
     #the second two
-    h2=h2.split('<div class="fc-item__image-container u-responsive-ratio inlined-image">', 3)[2:]
+    h2=h2.split('<div class="fc-item__image-container u-responsive-ratio inlined-image">')[2:]
     for x in h2:
         x=x.split('<h2 class="fc-item__title"><a href="', 1)[1]
         x=x.split('"', 1)[0]
@@ -273,7 +273,7 @@ def buildGuardian():
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
-    gdn=removeBadStories(gdn, None, ['Tom McCarthy'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
+    gdn=removeBadStories(gdn, None, ['Tom McCarthy', 'Andy Hunter'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
     return gdn
 
@@ -339,7 +339,7 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, None, ['Lawrence Jones'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
+    blz=removeBadStories(blz, None, ['Lawrence Jones', 'Mike Slater'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -401,7 +401,7 @@ def buildCBS():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     cbs=buildNewsSource2(name, url, h1s, h2s, h3s)
-    cbs=removeBadStories(cbs, ['60 Minutes'], None, None, None, None)
+    cbs=removeBadStories(cbs, ['60 Minutes'], None, None, None, ['whats-in-the-news-coverart'])
 
     return cbs
 
@@ -455,10 +455,12 @@ def buildNBC():
             h3s.append(x)
 
     #adjust for today.com urls
+    '''
     for arr in [h1s, h2s, h3s]:
         for i in range(len(arr)):
             if 'today.com' in arr[i]:
                 arr[i]=arr[i].split('.com', 1)[1]
+    '''
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     nbc=buildNewsSource2(name, url, h1s, h2s, h3s)
@@ -510,7 +512,13 @@ def buildBBC():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     bbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+    badTitleArr=None
+    badDescArr=None
+    badAuthorArr=None
+    badImgArr=['bbc_news_logo.png']
+    bbc=removeBadStories(bbc, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
+    
     #REMOVE ' - BBC News' from headlines
     for i in range(len(bbc.h1Arr)):
         if ' - BBC News' in bbc.h1Arr[i].title:
@@ -633,7 +641,7 @@ def buildNPR():
     npr=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
-    badTitleArr=None
+    badTitleArr=['The Two-Way']
     badDescArr=None
     badAuthorArr=None
     badImgArr=None
@@ -683,7 +691,7 @@ def buildFoxNews():
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
-    badTitleArr=['O&#039;Reilly']
+    badTitleArr=['O&#039;Reilly', 'Fox News']
     badDescArr=None
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']

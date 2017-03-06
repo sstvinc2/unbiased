@@ -96,6 +96,8 @@ def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, im
                 print("SHOULDN'T GET HERE")
 
         #strip out self-references
+        description=description.replace(sourceName+"'s", 'our')
+        description=description.replace(sourceName+"'", 'our')
         description=description.replace(sourceName, 'our')
 
         if debugging:
@@ -141,7 +143,7 @@ def buildOutput(newsSourceArr):
             if not pair in h3RandomPairs:
                 h3RandomPairs.append(pair)
         else:
-            continue
+            print('\n\n@@@@\nNo H3 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
 
     #replace html template locations with data from newsSourceArr
     for i in range(len(h1RandomSources)):

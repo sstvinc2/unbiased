@@ -26,14 +26,15 @@ def run():
     hil=buildTheHill()
     sourceList.append(hil)
 
-    nyt=buildNYT()
-    sourceList.append(nyt)
+    #nyt=buildNYT()
+    #sourceList.append(nyt)
 
     npr=buildNPR()
     sourceList.append(npr)
 
     #for some reason, The Guardian sometimes just doesn't work right?
     #loop until it gets it right
+    '''
     h1='https://www.theguardian.com/us'
     looped=False
     while h1=='https://www.theguardian.com/us':
@@ -43,6 +44,8 @@ def run():
         except:
             print('The Guardian: build error. Looping again.')
         looped=True
+    '''
+    gdn=buildGuardian()
     sourceList.append(gdn)
 
     blz=buildBlaze()
