@@ -10,12 +10,15 @@ import re
 Takes in a URL, downloads the file to a temp file,
 reads the file into a string, and returns that string
 '''
-def urlToContent(url):
+def urlToContent(url, sourceEncoding='utf8'):
     #download file
     os.system('wget -q -O scratch/temp1.html --no-check-certificate '+url)
     
     #read file
-    f=open('scratch/temp1.html', 'r')#, encoding="utf8")
+    if sourceEncoding=='utf8':
+        f=open('scratch/temp1.html', 'r', encoding="utf8")
+    else:
+        f=open('scratch/temp1.html', 'r', encoding="latin-1")
     content=f.read()
     f.close()
 
@@ -235,12 +238,12 @@ def buildTheHill():
 
 
 def buildGuardian():
-    url='http://www.theguardian.com/us-news'
-    name='The Guardian'
+    url='http://www.theguardian.com/us'
+    name='The Guardian US'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
-
+    content=urlToContent(url, 'utf8')
+    
     #get main headline
     h1=content
     h1=h1.split('<h1', 1)[1]
@@ -255,15 +258,18 @@ def buildGuardian():
     #the second two
     h2=h2.split('<div class="fc-item__image-container u-responsive-ratio inlined-image">')[2:]
     for x in h2:
-        x=x.split('<h2 class="fc-item__title"><a href="', 1)[1]
-        x=x.split('"', 1)[0]
-        h2s.append(x)
+        if '<h2 class="fc-item__title"><a href="' in x:
+            x=x.split('<h2 class="fc-item__title"><a href="', 1)[1]
+            x=x.split('"', 1)[0]
+            h2s.append(x)
+        else:
+            break
 
     #GET TERTIARY HEADLINES
     h3=content
     h3s=[]
     h3=h3.split('<div class="fc-slice-wrapper">', 1)[1]
-    h3=h3.split('<div class="js-show-more-placeholder">', 1)[0]
+    h3=h3.split('<div class="fc-container__inner">', 1)[0]#'<div class="js-show-more-placeholder">', 1)[0]
     #this story section goes on forever; just grab the first 5
     while '<h2 class="fc-item__title"><a href="' in h3:
         h3=h3.split('<h2 class="fc-item__title"><a href="', 1)[1]
@@ -271,7 +277,7 @@ def buildGuardian():
         h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    
+
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
     gdn=removeBadStories(gdn, None, ['Tom McCarthy', 'Andy Hunter'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
@@ -339,7 +345,7 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, None, ['Lawrence Jones', 'Mike Slater'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
+    blz=removeBadStories(blz, ['Tucker Carlson', 'Mark Levin'], ['Lawrence Jones', 'Mike Slater'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
 
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
@@ -645,7 +651,7 @@ def buildNPR():
     badDescArr=None
     badAuthorArr=None
     badImgArr=None
-    #npr=removeBadStories(npr, badTitleArr, badDescArr, badAuthorArr, badImgArr)
+    npr=removeBadStories(npr, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
     return npr
 

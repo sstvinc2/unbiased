@@ -6,7 +6,7 @@ import re
 
 
 #take in a url and delimiters, return twitter card
-def buildArticle(url, sourceName):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
+def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
     debugging=False
     if debugging:
@@ -124,15 +124,20 @@ def buildOutput(newsSourceArr):
     
     #set the random order for sources
     h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
+    
     #For h2s and h3s, select N random sources (can repeat), then
     #a non-repetitive random article from within 
     h2RandomPairs=[]
     while len(h2RandomPairs) < 6:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
-        y=random.sample(range(len(newsSourceArr[x].h2Arr)), 1)[0]
-        pair=[x,y]
-        if not pair in h2RandomPairs:
-            h2RandomPairs.append(pair)
+        if len(newsSourceArr[x].h2Arr) > 0:
+            y=random.sample(range(len(newsSourceArr[x].h2Arr)), 1)[0]
+            pair=[x,y]
+            if not pair in h2RandomPairs:
+                h2RandomPairs.append(pair)
+        else:
+            print('\n\n@@@@\nNo H2 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+
     h3RandomPairs=[]
     while len(h3RandomPairs) < 12:
         x=random.sample(range(len(newsSourceArr)), 1)[0]

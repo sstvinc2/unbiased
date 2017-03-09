@@ -23,15 +23,6 @@ def run():
 
     '''
 
-    hil=buildTheHill()
-    sourceList.append(hil)
-
-    #nyt=buildNYT()
-    #sourceList.append(nyt)
-
-    npr=buildNPR()
-    sourceList.append(npr)
-
     #for some reason, The Guardian sometimes just doesn't work right?
     #loop until it gets it right
     '''
@@ -47,6 +38,15 @@ def run():
     '''
     gdn=buildGuardian()
     sourceList.append(gdn)
+
+    hil=buildTheHill()
+    sourceList.append(hil)
+
+    #nyt=buildNYT()
+    #sourceList.append(nyt)
+
+    npr=buildNPR()
+    sourceList.append(npr)
 
     blz=buildBlaze()
     sourceList.append(blz)
