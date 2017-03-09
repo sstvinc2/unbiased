@@ -108,8 +108,8 @@ a:hover{
     width:350px;
     height:200px;
     overflow:hidden;
-    background-size: cover;
-    background-position: center center;
+    background-size: auto 234px;/*cover;*/
+    background-position: top center;/*center center;*/
     margin:0 auto;
 }
 
@@ -169,8 +169,8 @@ a:hover{
     width:150px;
     height:100px;
     overflow:hidden;
-    background-size: cover;
-    background-position: center center;
+    background-size: auto 117px;/*cover;*/
+    background-position: top center;/*center center;*/
     float:left;
     max-width:35%;
 }
