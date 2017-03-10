@@ -114,77 +114,33 @@ def removalNotification(source, title, reason, value):
     print('*************************\n\n')
 
 
+def removeBadStoriesHelper(source, element, badStringList, arr):
+    if badStringList!=None:
+        for i in range(len(arr)):
+            for hed in arr[i]:
+                if hed==None:
+                    print("////////\nNone type found in removeBadStoriesHelper for "+source+"\n/////////")
+                    break
+                for item in badStringList:
+                    if item in getattr(hed, element):
+                        arr[i].remove(hed)
+                        #if it's in the h1 slot, bump up the 
+                        #  first h2 into the h1 slot
+                        if i==0:
+                            arr[0].append(arr[1][0])
+                            arr[1].remove(arr[1][0])
+                        removalNotification(source.name, hed.title, element, item)
+                        
+    
 def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr=None):
 
     arr=[source.h1Arr, source.h2Arr, source.h3Arr]
 
-    if badTitleArr!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                for item in badTitleArr:
-                    if item in hed.title:
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, 'Title', item)
-                    
-
-    if badDescArr!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                for item in badDescArr:
-                    if item in hed.description:
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, 'Description', item)
-                    
-
-    if badAuthorArr!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                for item in badAuthorArr:
-                    if item in hed.author:
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, 'Author', item)
-                    
-
-    if badImgArr!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                for item in badImgArr:
-                    if item in hed.img:
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, 'Image', item)
-                    
-    if badURLArr!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                for item in badURLArr:
-                    if item in hed.url:
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, 'URL', item)
+    removeBadStoriesHelper(source, "title", badTitleArr, arr)
+    removeBadStoriesHelper(source, "description", badDescArr, arr)
+    removeBadStoriesHelper(source, "author", badAuthorArr, arr)
+    removeBadStoriesHelper(source, "img", badImgArr, arr)
+    removeBadStoriesHelper(source, "url", badURLArr, arr)
                     
     return source
 
@@ -345,8 +301,15 @@ def buildBlaze():
 
 
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
-    blz=removeBadStories(blz, ['Tucker Carlson', 'Mark Levin'], ['Lawrence Jones', 'Mike Slater'], ['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales'], None)
 
+    badTitleArr=['Tucker Carlson', 'Mark Levin']
+    badDescArr=['Lawrence Jones', 'Mike Slater']
+    badAuthorArr=['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales', 'Doc Thompson']
+    badImgArr=None
+    badURLArr=None
+    blz=removeBadStories(blz, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
+
+    
     #The Blaze has dumb, short description fields, so we need to grab
     #the first x characters of actual article text instead
     blz.h1Arr=blazeFixDesc(blz.h1Arr)
@@ -697,8 +660,8 @@ def buildFoxNews():
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
-    badTitleArr=['O&#039;Reilly', 'Fox News']
-    badDescArr=None
+    badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier']
+    badDescArr=['Sean Hannity']
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
     badURLArr=['http://www.foxnews.com/opinion', 'videos.foxnews.com']
