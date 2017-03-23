@@ -5,6 +5,7 @@ from unbiasedFunctions import *
 from parser import *
 import time
 
+
 def main():
     while True:
         print('-----------------------')
@@ -23,49 +24,27 @@ def run():
 
     '''
 
-    #for some reason, The Guardian sometimes just doesn't work right?
-    #loop until it gets it right
-    '''
-    h1='https://www.theguardian.com/us'
-    looped=False
-    while h1=='https://www.theguardian.com/us':
-        try:
-            gdn=buildGuardian()
-            h1=gdn.h1Arr[0]
-        except:
-            print('The Guardian: build error. Looping again.')
-        looped=True
-    '''
-    gdn=buildGuardian()
-    sourceList.append(gdn)
 
-    hil=buildTheHill()
-    sourceList.append(hil)
-
-    #nyt=buildNYT()
-    #sourceList.append(nyt)
-
-    npr=buildNPR()
-    sourceList.append(npr)
-
-    blz=buildBlaze()
-    sourceList.append(blz)
-
-    bbc=buildBBC()
-    sourceList.append(bbc)
-
-    nbc=buildNBC()
-    sourceList.append(nbc)
-
-    cbs=buildCBS()
-    sourceList.append(cbs)
-
-    #Weekly standard just doesn't update frequently enough
-    #wkl=buildWeeklyStandard()
-    #sourceList.append(wkl)
-
-    fox=buildFoxNews()
-    sourceList.append(fox)
+    ### These values have to be the second half of the function name
+    ### E.g. Guardian calls buildGuardian(), etc.
+    sourceFnArr=['Guardian', 'TheHill', 'NPR', 'Blaze', 'BBC', 'NBC', 'CBS',
+                 'FoxNews', ]
+    
+    for source in sourceFnArr:
+        tries=0
+        while tries<3:
+            try:
+                fn='build'+source
+                possibles = globals().copy()
+                possibles.update(locals())
+                method = possibles.get(fn)
+                src=method()
+                sourceList.append(src)
+                break
+            except:
+                print('Build error. Looping again: '+source)
+                tries+=1
+                time.sleep(tries)
     
     #scrape all urls and build data structure
     newsSourceArr=buildNewsSourceArr(sourceList)

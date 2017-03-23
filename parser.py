@@ -119,7 +119,7 @@ def removeBadStoriesHelper(source, element, badStringList, arr):
         for i in range(len(arr)):
             for hed in arr[i]:
                 if hed==None:
-                    print("////////\nNone type found in removeBadStoriesHelper for "+source+"\n/////////")
+                    print("////////\nNone type found in removeBadStoriesHelper for "+source.name+"\n/////////")
                     break
                 for item in badStringList:
                     if item in getattr(hed, element):
@@ -197,14 +197,23 @@ def buildGuardian():
     url='http://www.theguardian.com/us'
     name='The Guardian US'
 
-    #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url, 'utf8')
-    
-    #get main headline
-    h1=content
-    h1=h1.split('<h1', 1)[1]
-    h1=h1.split('<a href="', 1)[1]
-    h1=h1.split('"', 1)[0]
+
+    while True:
+        #DOWNLOAD HOMEPAGE CONTENT
+        content=urlToContent(url, 'utf8')
+        
+        #get main headline
+        h1=content
+        h1=h1.split('<h1', 1)[1]
+        h1=h1.split('<a href="', 1)[1]
+        h1=h1.split('"', 1)[0]
+
+        print(h1)
+        if h1!='https://www.theguardian.com/us':
+            break
+        else:
+            print('Guardian loop')
+        
     h1s=[h1]
 
     #GET SECONDARY HEADLINES
@@ -233,7 +242,7 @@ def buildGuardian():
         h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-
+    
     gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
     gdn=removeBadStories(gdn, None, ['Tom McCarthy', 'Andy Hunter'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
@@ -269,7 +278,6 @@ def buildBlaze():
     #get main headline
     h1=content
     h1=h1.split('<!-- home -->', 1)[1]
-    h1=h1.split('<!-- loop-home -->', 1)[0]
     h1=h1.split('<a class="gallery-link" href="', 1)[1]
     h1=h1.split('"', 1)[0]
     h1s=[url+h1]
@@ -279,9 +287,9 @@ def buildBlaze():
     h2s=[]
     h2=h2.split('<!-- home -->', 1)[1]
     h2=h2.split('<!-- loop-home -->', 1)[0]
-    while '</figure>\n\n<figure class="gallery-item">' in h2:
-        h2=h2.split('</figure>\n\n<figure class="gallery-item">', 1)[1]
-        h2=h2.split('href="', 1)[1]
+    while '<a class="gallery-link" href="' in h2:#'</figure>\n\n<figure class="gallery-item">' in h2:
+        h2=h2.split('<a class="gallery-link" href="', 1)[1]#'</figure>\n\n<figure class="gallery-item">', 1)[1]
+        #h2=h2.split('href="', 1)[1]
         x=h2.split('"', 1)[0]
         if h1 not in x:
             h2s.append(url+x)
@@ -299,12 +307,11 @@ def buildBlaze():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-
     blz=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     badTitleArr=['Tucker Carlson', 'Mark Levin']
     badDescArr=['Lawrence Jones', 'Mike Slater']
-    badAuthorArr=['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales', 'Doc Thompson']
+    badAuthorArr=['Matt Walsh', 'Tomi Lahren', 'Dana Loesch', 'Mike Opelka', 'Chris Salcedo', 'Justin Haskins', 'Sara Gonzales', 'Doc Thompson', 'Glenn Beck']
     badImgArr=None
     badURLArr=None
     blz=removeBadStories(blz, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
