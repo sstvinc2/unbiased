@@ -96,9 +96,9 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
                 print("SHOULDN'T GET HERE")
 
         #strip out self-references
-        description=description.replace(sourceName+"'s", 'our')
-        description=description.replace(sourceName+"'", 'our')
-        description=description.replace(sourceName, 'our')
+        description=description.replace(sourceName+"'s", '***')
+        description=description.replace(sourceName+"'", '***')
+        description=description.replace(sourceName, '***')
 
         if debugging:
             print(description)
@@ -123,7 +123,14 @@ def buildOutput(newsSourceArr):
     f.close()
     
     #set the random order for sources
-    h1RandomSources=random.sample(range(len(newsSourceArr)), 4)
+    h1RandomSources=[]
+    while len(h1RandomSources)<4:
+        x=random.sample(range(len(newsSourceArr)), 1)[0]
+        if len(newsSourceArr[x].h1Arr)>0:
+            if x not in h1RandomSources:
+                h1RandomSources.append(x)
+        else:
+            print('\n\n@@@@\nNo H1 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
     
     #For h2s and h3s, select N random sources (can repeat), then
     #a non-repetitive random article from within 

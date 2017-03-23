@@ -208,7 +208,6 @@ def buildGuardian():
         h1=h1.split('<a href="', 1)[1]
         h1=h1.split('"', 1)[0]
 
-        print(h1)
         if h1!='https://www.theguardian.com/us':
             break
         else:
