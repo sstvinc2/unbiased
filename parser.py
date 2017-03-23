@@ -248,6 +248,58 @@ def buildGuardian():
     return gdn
 
 
+
+def buildWashTimes():
+    url='http://www.washingtontimes.com/'
+    name='Washington Times'
+
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+    
+    #get main headline
+    h1=content
+    h1=h1.split('top-news', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    #only the h1 and the two h2s have this, so split on it and grab
+    #the second two
+    h2=h2.split('class="top-news', 1)[1]
+    h2=h2.split('</article>', 1)[1] #end of top-news article
+    h2=h2.split('<article ', 1)[0] #note the space; we want unclassed articles
+    h2=h2.split('<article>')[1:]
+    
+    for x in h2:
+        x=x.split('<a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('more-from desktop-only', 1)[1]
+    h3=h3.split('</section>', 1)[0]
+    h3=h3.split('<a href="')[1:]
+    
+    for x in h3:
+        x=x.split('"', 1)[0]
+        h3s.append(url+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+
+    wat=buildNewsSource2(name, url, h1s, h2s, h3s)
+    wat=removeBadStories(wat, None, None, None, None)
+
+    return wat
+
+
+
 '''
 Function to fix the oddly short og:descriptions provided
 in The Blaze articles by grabbing the first portion of the story instead
