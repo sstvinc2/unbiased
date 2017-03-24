@@ -15,7 +15,9 @@ def spotCheck(src):
            'blz' : buildBlaze,
            'bbc' : buildBBC,
            'nbc' : buildNBC,
-           'wat' : buildWashTimes}
+           'wat' : buildWashTimes,
+           'csm' : buildCSM,
+           'abc' : buildABC}
 
     data=fns[src]()
 

@@ -21,9 +21,7 @@ def run():
     SOURCES TO ADD NEXT:
     -ABC
     -REUTERS
-    -Christian Science Monitor
     -Town Hall
-    -Washington Times
 
     '''
 
@@ -31,7 +29,7 @@ def run():
     ### These values have to be the second half of the function name
     ### E.g. Guardian calls buildGuardian(), etc.
     sourceFnArr=['Guardian', 'TheHill', 'NPR', 'BBC', 'NBC', 'CBS',
-                 'FoxNews', 'WashTimes'] #'Blaze'
+                 'FoxNews', 'WashTimes', 'CSM', 'ABC'] #'Blaze'
     
     for source in sourceFnArr:
         tries=0

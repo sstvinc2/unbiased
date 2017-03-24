@@ -41,7 +41,10 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
                 img=img.split('src="', 1)[1].split('"')[0]
             
         else:
-            img=content.split('og:image" content=')[1][1:].split('>')[0]
+            if 'og:image' in content:
+                img=content.split('og:image" content=')[1][1:].split('>')[0]
+            elif sourceName=='ABC News':
+                img='https://c1.staticflickr.com/7/6042/6276688407_12900948a2_b.jpgX'
             if img[-1]=='/':
                 #because the quote separator could be ' or ", 
                 #trim to just before it then lop it off

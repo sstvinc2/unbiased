@@ -32,19 +32,28 @@ Returns a newsSource2 object
 '''
 def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
     h1Arr=[]
-    h1Arr.append(buildArticle(h1URLs[0], name))
+    a=buildArticle(h1URLs[0], name)
+    if a==None:
+        print('................\nH1 Nonetype in '+name+'\n................')
+    else:
+        h1Arr.append(a)
 
     h2Arr=[]
     for x in h2URLs:
         a=buildArticle(x, name)
         if a!=None:
             h2Arr.append(a)
+        else:
+            print('................\nH2 Nonetype in '+name+'\n................')
 
+            
     h3Arr=[]
     for x in h3URLs:
         a=buildArticle(x, name)
         if a!=None:
             h3Arr.append(a)
+        else:
+            print('................\nH3 Nonetype in '+name+'\n................')
 
     #BUILD THE NEWS SOURCE
     newsSource=NewsSource2(name, url, h1Arr, h2Arr, h3Arr)
@@ -268,8 +277,6 @@ def buildWashTimes():
     #GET SECONDARY HEADLINES
     h2=content
     h2s=[]
-    #only the h1 and the two h2s have this, so split on it and grab
-    #the second two
     h2=h2.split('class="top-news', 1)[1]
     h2=h2.split('</article>', 1)[1] #end of top-news article
     h2=h2.split('<article ', 1)[0] #note the space; we want unclassed articles
@@ -297,6 +304,60 @@ def buildWashTimes():
     wat=removeBadStories(wat, None, None, None, None)
 
     return wat
+
+
+def buildCSM():
+    url='http://www.csmonitor.com'
+    name='Christian Science Monitor'
+
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+    
+    #get main headline
+    h1=content
+    h1=h1.split('ui-top-center', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+
+    h1s=[url+h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('block-3-1', 1)[1]
+    h2=h2.split('ui-top-right', 1)[0]
+    h2=h2.split('<h3 class="story_headline">')[1:]
+    
+    for x in h2:
+        x=x.split('<a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        h2s.append(url+x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('block-2-1', 1)[1]
+    h3=h3.split('block-2-2', 1)[0]
+    h3=h3.split('<h3 class="story_headline')[1:]
+    
+    for x in h3:
+        x=x.split('<a href="', 2)[-1]
+        x=x.split('"', 1)[0]
+        h3s.append(url+x)
+
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
+
+    csm=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    badTitleArr=['Change Agent']
+    badDescArr=None
+    badAuthorArr=None
+    badImgArr=['csm_logo']
+    badURLArr=['difference-maker']
+    csm=removeBadStories(csm, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
+
+    return csm
 
 
 
@@ -679,6 +740,61 @@ def buildNPR():
 
 
 
+
+def buildABC():
+    url='http://www.abcnews.go.com'
+    name='ABC News'
+
+    #DOWNLOAD HOMEPAGE CONTENT
+    content=urlToContent(url)
+    
+    #get main headline
+    h1=content
+    h1=h1.split('id="row-1"', 1)[1]
+    h1=h1.split('<a href="', 1)[1]
+    h1=h1.split('"', 1)[0]
+    h1s=[h1]
+
+    #GET SECONDARY HEADLINES
+    h2=content
+    h2s=[]
+    h2=h2.split('id="row-2"', 1)[1]
+    h2=h2.split('id="row-3"', 1)[0]
+    h2=h2.split('card single row-item')[1:3] #should just be 2 of these
+    for x in h2:
+        x=x.split('<a href="', 1)[1]
+        x=x.split('"', 1)[0]
+        if h1 not in x:
+            h2s.append(x)
+
+    #GET TERTIARY HEADLINES
+    h3=content
+    h3s=[]
+    h3=h3.split('id="row-1"', 1)[1]
+    h3=h3.split('tab-data active', 1)[1]
+    h3=h3.split('tab-data"', 1)[0] #note the trailing quotation
+    while '<a href="' in h3:
+        h3=h3.split('<a href="', 1)[1]
+        x=h3.split('"', 1)[0]
+        if h1 not in x:
+            h3s.append(x)
+
+    h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
+    abc=buildNewsSource2(name, url, h1s, h2s, h3s)
+
+    #REMOVE BAD STORIES
+    badTitleArr=None
+    badDescArr=None
+    badAuthorArr=None
+    badImgArr=None
+    badURLArr=None
+    abc=removeBadStories(abc, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
+
+    return abc
+
+
+
+
 def buildFoxNews():
     url='http://foxnews.com'
     name='Fox News'
@@ -718,7 +834,7 @@ def buildFoxNews():
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
-    badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier']
+    badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier', 'Tucker']
     badDescArr=['Sean Hannity']
     badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
