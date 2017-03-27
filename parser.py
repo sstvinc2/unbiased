@@ -194,7 +194,7 @@ def buildTheHill():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     hil=buildNewsSource2(name, url, h1s, h2s, h3s)
-    hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp', 'Juan Williams'], None, None)
+    hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp', 'Juan Williams', 'Judd Gregg'], None, None)
 
     return hil
 
@@ -489,7 +489,7 @@ def buildCBS():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     cbs=buildNewsSource2(name, url, h1s, h2s, h3s)
-    cbs=removeBadStories(cbs, ['60 Minutes'], None, None, None, ['whats-in-the-news-coverart'])
+    cbs=removeBadStories(cbs, ['60 Minutes'], ['60 Minutes'], None, None, ['whats-in-the-news-coverart'])
 
     return cbs
 
@@ -731,7 +731,7 @@ def buildNPR():
     #REMOVE BAD STORIES
     badTitleArr=['The Two-Way']
     badDescArr=None
-    badAuthorArr=None
+    badAuthorArr=['Domenico Montanaro']
     badImgArr=None
     npr=removeBadStories(npr, badTitleArr, badDescArr, badAuthorArr, badImgArr)
 
