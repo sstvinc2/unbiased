@@ -307,16 +307,19 @@ def buildWashTimes():
 
 
 def buildCSM():
-    url='http://www.csmonitor.com'
+    url='http://www.csmonitor.com/USA'
     name='Christian Science Monitor'
 
 
     #DOWNLOAD HOMEPAGE CONTENT
     content=urlToContent(url)
+
+    #this makes sure we don't get '/USA' in the URL twice
+    url=url.split('/USA')[0]
     
     #get main headline
     h1=content
-    h1=h1.split('ui-top-center', 1)[1]
+    h1=h1.split('block-0-0', 1)[1]
     h1=h1.split('<a href="', 1)[1]
     h1=h1.split('"', 1)[0]
 
@@ -325,20 +328,32 @@ def buildCSM():
     #GET SECONDARY HEADLINES
     h2=content
     h2s=[]
-    h2=h2.split('block-3-1', 1)[1]
-    h2=h2.split('ui-top-right', 1)[0]
+    h2=h2.split('block-1-0', 1)[1]
+    h2=h2.split('ui-section-middle', 1)[0]
     h2=h2.split('<h3 class="story_headline">')[1:]
     
     for x in h2:
-        x=x.split('<a href="', 1)[1]
+        temp=x.split('<a href="', 2)[1:]
+        x=temp[0]
         x=x.split('"', 1)[0]
+        if x=='/csmlists/special/first-look':
+            x=temp[1]
+            x=x.split('"', 1)[0]
+
         h2s.append(url+x)
+    #also add in the floating story on the left
+    h2=content
+    h2=h2.split('block-0-1', 1)[1]
+    h2=h2.split('<h3 class="story_headline">')[1]
+    h2=h2.split('<a href="', 2)[2]
+    h2=h2.split('"', 1)[0]
+    h2s.append(url+h2)
 
     #GET TERTIARY HEADLINES
     h3=content
     h3s=[]
-    h3=h3.split('block-2-1', 1)[1]
-    h3=h3.split('block-2-2', 1)[0]
+    h3=h3.split('block-0-2', 1)[1]
+    h3=h3.split('ui-section-top-right', 1)[0]
     h3=h3.split('<h3 class="story_headline')[1:]
     
     for x in h3:
