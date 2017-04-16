@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import argparse
+import os
+
 from unbiasedObjects import *
 from unbiasedFunctions import *
 from parser import *
@@ -7,13 +10,17 @@ import time
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-w', '--webroot', default='/var/www/ubiased', help='location to write the output html')
+    args = parser.parse_args()
+
     while True:
         print('-----------------------')
-        run()
+        run(args.webroot)
         print('-----------------------')
         time.sleep(600)
 
-def run():
+def run(webroot):
     sourceList=[]
 
     '''
@@ -24,6 +31,8 @@ def run():
     -Town Hall
 
     '''
+
+    print('running with webroot="{}"'.format(webroot))
 
 
     ### These values have to be the second half of the function name
@@ -54,7 +63,7 @@ def run():
     outputHTML=buildOutput(newsSourceArr)
 
     #print the output file HTML
-    printOutputHTML(outputHTML, '/var/www/html/index.html')
+    printOutputHTML(outputHTML, os.path.join(webroot, 'index.html'))
 
 
 if __name__=="__main__":
