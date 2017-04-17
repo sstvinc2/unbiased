@@ -827,6 +827,7 @@ def buildFoxNews(scratchDir):
     h1=h1.split('<h1><a href="', 1)[1]
     h1=h1.split('"', 1)[0]
     h1s=[h1]
+    h1s = ['http:' + x if x.startswith('//') else x for x in h1s]
 
     #GET SECONDARY HEADLINES
     h2=content
@@ -838,6 +839,7 @@ def buildFoxNews(scratchDir):
         x=h2.split('"', 1)[0]
         if h1 not in x:
             h2s.append(x)
+    h2s = ['http:' + x if x.startswith('//') else x for x in h2s]
 
     #GET TERTIARY HEADLINES
     h3=content
@@ -849,8 +851,9 @@ def buildFoxNews(scratchDir):
         x=h3.split('"', 1)[0]
         if h1 not in x:
             h3s.append(x)
+    h3s = ['http:' + x if x.startswith('//') else x for x in h3s]
 
-    h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     fox=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     #REMOVE BAD STORIES
