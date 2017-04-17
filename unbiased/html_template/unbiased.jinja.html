@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="unbiased.css">
+    <title>UnBiased</title>
+  </head>
+<body>
+
+<div id="page-header">
+  <span id="title-1" class="title">un</span><span id="title-2" class="title">biased</span><br />
+  <span id="subtitle">a different way to read the news</span>
+  <p id="timestamp">Last updated: {{ timestamp }}</p>
+</div>
+
+<div id="page-container">
+
+  <div id="top-stories">
+
+    {% for story in top_stories %}
+
+    <div class="top-story">
+      <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
+        <div class="top-stories-img" style="background-image: url('{{ story.img }}');" /></div>
+        <div class="top-stories-hed">{{ story.title }}</div>
+      </a>
+      <div class="top-stories-desc">{{ story.desc }}</div>
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+  <div id="middle-stories">
+
+    {% for story in middle_stories %}
+
+    <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
+      <div class="middle-story">
+        <div class="middle-stories-img" style="background-image: url('{{ story.img }}');">
+        </div>
+        <div class="middle-stories-hed">{{ story.title }}</div>
+      </div>
+    </a>
+
+    {% endfor %}
+
+  </div>
+
+  <div id="bottom-stories">
+
+    {% for story in bottom_stories %}
+
+    <div class="bottom-story">
+      <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">{{ story.title }}</a>
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+</div>
+
+<div id="sources">
+  Sources: {{ sources }}
+</div>
+</body>
+</html>

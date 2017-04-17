@@ -127,9 +127,13 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
 
 def buildOutput(newsSourceArr):
     #read in the template html file
-    template=pkgutil.get_data('unbiased', 'html_template/template.html')
-    template = template.decode('utf8')
-    
+    from jinja2 import Environment, PackageLoader, select_autoescape
+    env = Environment(
+        loader=PackageLoader('unbiased', 'html_template'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    template = env.get_template('unbiased.jinja.html')
+
     #set the random order for sources
     h1RandomSources=[]
     while len(h1RandomSources)<4:
@@ -139,9 +143,9 @@ def buildOutput(newsSourceArr):
                 h1RandomSources.append(x)
         else:
             print('\n\n@@@@\nNo H1 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
-    
+
     #For h2s and h3s, select N random sources (can repeat), then
-    #a non-repetitive random article from within 
+    #a non-repetitive random article from within
     h2RandomPairs=[]
     while len(h2RandomPairs) < 6:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
@@ -165,34 +169,25 @@ def buildOutput(newsSourceArr):
         else:
             print('\n\n@@@@\nNo H3 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
 
-    #replace html template locations with data from newsSourceArr
+    # collect articles for each section
+    top_stories = []
     for i in range(len(h1RandomSources)):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
-        template=template.replace('xxURL1-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle1-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg1-'+str(i+1)+'xx', article.img)
-        desc=article.description
-        if len(desc)>144:
-            desc=desc[:141]
-            desc=desc.split()[:-1]
-            desc=' '.join(desc)+' ...'
-        template=template.replace('xxDesc1-'+str(i+1)+'xx', desc)
+        top_stories.append(article)
 
+    middle_stories = []
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle2-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg2-'+str(i+1)+'xx', article.img)
+        middle_stories.append(article)
 
+    bottom_stories = []
     for i in range(len(h3RandomPairs)):
         pair=h3RandomPairs[i]
         article=newsSourceArr[pair[0]].h3Arr[pair[1]]
-        template=template.replace('xxURL3-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle3-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg3-'+str(i+1)+'xx', article.img)
+        bottom_stories.append(article)
 
 
     sourcesStr=''
@@ -200,11 +195,20 @@ def buildOutput(newsSourceArr):
         sourcesStr+=newsSourceArr[i].name+', '
     sourcesStr+=newsSourceArr[-1].name
     print('Successfully parsed: '+sourcesStr)
-    template=template.replace('xxSourcesxx', sourcesStr)
-        
+
+    timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+
+    html = template.render(
+        timestamp = timestamp,
+        top_stories = top_stories,
+        middle_stories = middle_stories,
+        bottom_stories = bottom_stories,
+        sources = sourcesStr,
+    )
+
 
     #return updated text
-    return template
+    return html
 
 def printOutputHTML(outputHTML, outDir):
     timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
