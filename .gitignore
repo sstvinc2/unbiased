@@ -1,7 +1,7 @@
 *.pyc
 *~
 __pycache__/
-scratch/*.html
+unbiased/scratch/*.html
 legacy_py/
 unbiased.html
 html_template/Penguins.jpg
