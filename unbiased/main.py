@@ -49,16 +49,17 @@ def run(webroot, scratch):
                 possibles = globals().copy()
                 possibles.update(locals())
                 method = possibles.get(fn)
-                src=method()
+                src=method(scratch)
                 sourceList.append(src)
                 break
-            except Exception:
+            except Exception as ex:
+                print(ex)
                 print('Build error. Looping again: '+source)
                 tries+=1
                 time.sleep(tries)
     
     #scrape all urls and build data structure
-    newsSourceArr=buildNewsSourceArr(sourceList)
+    newsSourceArr=buildNewsSourceArr(sourceList, scratch)
 
     #build the output file HTML
     outputHTML=buildOutput(newsSourceArr)

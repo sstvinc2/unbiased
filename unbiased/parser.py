@@ -2,6 +2,7 @@
 
 import os
 import re
+import subprocess
 
 from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import buildArticle
@@ -11,15 +12,18 @@ from unbiased.unbiasedFunctions import buildArticle
 Takes in a URL, downloads the file to a temp file,
 reads the file into a string, and returns that string
 '''
-def urlToContent(url, sourceEncoding='utf8'):
+def urlToContent(url, scratchDir, sourceEncoding='utf8'):
+    temp_file = os.path.join(scratchDir, 'temp1.html')
+
     #download file
-    os.system('wget -q -O scratch/temp1.html --no-check-certificate '+url)
+    #os.system('wget -q -O scratch/temp1.html --no-check-certificate '+url)
+    subprocess.check_call(['wget', '-q', '-O', temp_file, '--no-check-certificate', url])
     
     #read file
     if sourceEncoding=='utf8':
-        f=open('scratch/temp1.html', 'r', encoding="utf8")
+        f=open(temp_file, 'r', encoding="utf8")
     else:
-        f=open('scratch/temp1.html', 'r', encoding="latin-1")
+        f=open(temp_file, 'r', encoding="latin-1")
     content=f.read()
     f.close()
 
@@ -31,9 +35,9 @@ Creates a new newsSource2 object. For each URL in h1-h3URLs,
 calls the file scraper and appends the new Article object.
 Returns a newsSource2 object
 '''
-def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
+def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
     h1Arr=[]
-    a=buildArticle(h1URLs[0], name)
+    a=buildArticle(h1URLs[0], name, scratchDir)
     if a==None:
         print('................\nH1 Nonetype in '+name+'\n................')
     else:
@@ -41,7 +45,7 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
 
     h2Arr=[]
     for x in h2URLs:
-        a=buildArticle(x, name)
+        a=buildArticle(x, name, scratchDir)
         if a!=None:
             h2Arr.append(a)
         else:
@@ -50,7 +54,7 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
             
     h3Arr=[]
     for x in h3URLs:
-        a=buildArticle(x, name)
+        a=buildArticle(x, name, scratchDir)
         if a!=None:
             h3Arr.append(a)
         else:
@@ -157,12 +161,12 @@ def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, b
 
 
 
-def buildTheHill():
+def buildTheHill(scratchDir):
     url='http://thehill.com'
     name='The Hill'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     h1=content
@@ -194,7 +198,7 @@ def buildTheHill():
         h3s.append(url+x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    hil=buildNewsSource2(name, url, h1s, h2s, h3s)
+    hil=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     hil=removeBadStories(hil, ['THE MEMO'], None, ['Matt Schlapp', 'Juan Williams', 'Judd Gregg'], None, None)
 
     return hil
@@ -203,14 +207,14 @@ def buildTheHill():
 
 
 
-def buildGuardian():
+def buildGuardian(scratchDir):
     url='http://www.theguardian.com/us'
     name='The Guardian US'
 
 
     while True:
         #DOWNLOAD HOMEPAGE CONTENT
-        content=urlToContent(url, 'utf8')
+        content=urlToContent(url, scratchDir, 'utf8')
         
         #get main headline
         h1=content
@@ -252,20 +256,20 @@ def buildGuardian():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     
-    gdn=buildNewsSource2(name, url, h1s, h2s, h3s)
+    gdn=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     gdn=removeBadStories(gdn, None, ['Tom McCarthy', 'Andy Hunter'], ['https://www.theguardian.com/profile/ben-jacobs'], None)
 
     return gdn
 
 
 
-def buildWashTimes():
+def buildWashTimes(scratchDir):
     url='http://www.washingtontimes.com/'
     name='Washington Times'
 
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
     
     #get main headline
     h1=content
@@ -301,19 +305,19 @@ def buildWashTimes():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-    wat=buildNewsSource2(name, url, h1s, h2s, h3s)
+    wat=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     wat=removeBadStories(wat, None, None, None, None)
 
     return wat
 
 
-def buildCSM():
+def buildCSM(scratchDir):
     url='http://www.csmonitor.com/USA'
     name='Christian Science Monitor'
 
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #this makes sure we don't get '/USA' in the URL twice
     url=url.split('/USA')[0]
@@ -364,7 +368,7 @@ def buildCSM():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-    csm=buildNewsSource2(name, url, h1s, h2s, h3s)
+    csm=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     badTitleArr=['Change Agent']
     badDescArr=None
@@ -384,7 +388,7 @@ in The Blaze articles by grabbing the first portion of the story instead
 def blazeFixDesc(articleArr):
     TAG_RE = re.compile(r'<[^>]+>')
     for i in range(len(articleArr)):
-        desc=urlToContent(articleArr[i].url)
+        desc=urlToContent(articleArr[i].url, scratchDir)
         desc=desc.split('<div class="entry-content article-styles">', 1)[1]
         desc=desc.split('<p>', 1)[1]
         desc=TAG_RE.sub('', desc)
@@ -396,12 +400,12 @@ def blazeFixDesc(articleArr):
     
 
 
-def buildBlaze():
+def buildBlaze(scratchDir):
     url='http://theblaze.com'
     name='The Blaze'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     h1=content
@@ -435,7 +439,7 @@ def buildBlaze():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-    blz=buildNewsSource2(name, url, h1s, h2s, h3s)
+    blz=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     badTitleArr=['Tucker Carlson', 'Mark Levin']
     badDescArr=['Lawrence Jones', 'Mike Slater']
@@ -455,12 +459,12 @@ def buildBlaze():
 
 
 
-def buildCBS():
+def buildCBS(scratchDir):
     url='http://cbsnews.com'
     name='CBS News'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     h1=content
@@ -504,7 +508,7 @@ def buildCBS():
             h3s.append(url+x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    cbs=buildNewsSource2(name, url, h1s, h2s, h3s)
+    cbs=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     cbs=removeBadStories(cbs, ['60 Minutes'], ['60 Minutes'], None, None, ['whats-in-the-news-coverart'])
 
     return cbs
@@ -513,12 +517,12 @@ def buildCBS():
 
 
 
-def buildNBC():    
+def buildNBC(scratchDir):    
     url='http://nbcnews.com'
     name='NBC News'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     h1=content
@@ -567,7 +571,7 @@ def buildNBC():
     '''
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    nbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+    nbc=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     nbc=removeBadStories(nbc, None, ['First Read'], None, None, None)
 
 
@@ -576,12 +580,12 @@ def buildNBC():
 
 
 
-def buildBBC():    
+def buildBBC(scratchDir):    
     url='http://www.bbc.com/news/world/us_and_canada'
     name='BBC US & Canada'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     h1=content
@@ -615,7 +619,7 @@ def buildBBC():
             h3s.append('http://www.bbc.com'+x)
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    bbc=buildNewsSource2(name, url, h1s, h2s, h3s)
+    bbc=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     badTitleArr=None
     badDescArr=None
     badAuthorArr=None
@@ -638,12 +642,12 @@ def buildBBC():
 
 
 
-def buildWeeklyStandard():
+def buildWeeklyStandard(scratchDir):
     url='http://www.weeklystandard.com'
     name='Weekly Standard'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
     
     #get main headline
     h1=content
@@ -688,7 +692,7 @@ def buildWeeklyStandard():
         
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
-    wkl=buildNewsSource2(name, url, h1s, h2s, h3s)
+    wkl=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     #REMOVE BAD STORIES
     badTitleArr=None
@@ -703,12 +707,12 @@ def buildWeeklyStandard():
 
 
 
-def buildNPR():
+def buildNPR(scratchDir):
     url='http://www.npr.org/sections/news/'
     name='NPR'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
     
     #get main headline
     h1=content
@@ -742,7 +746,7 @@ def buildNPR():
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-    npr=buildNewsSource2(name, url, h1s, h2s, h3s)
+    npr=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     #REMOVE BAD STORIES
     badTitleArr=['The Two-Way']
@@ -757,12 +761,12 @@ def buildNPR():
 
 
 
-def buildABC():
+def buildABC(scratchDir):
     url='http://www.abcnews.go.com'
     name='ABC News'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
     
     #get main headline
     h1=content
@@ -796,7 +800,7 @@ def buildABC():
             h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
-    abc=buildNewsSource2(name, url, h1s, h2s, h3s)
+    abc=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     #REMOVE BAD STORIES
     badTitleArr=None
@@ -811,12 +815,12 @@ def buildABC():
 
 
 
-def buildFoxNews():
+def buildFoxNews(scratchDir):
     url='http://foxnews.com'
     name='Fox News'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
     
     #get main headline
     h1=content
@@ -847,7 +851,7 @@ def buildFoxNews():
             h3s.append(x)
 
     h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
-    fox=buildNewsSource2(name, url, h1s, h2s, h3s)
+    fox=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
 
     #REMOVE BAD STORIES
     badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier', 'Tucker']
@@ -861,12 +865,12 @@ def buildFoxNews():
 
 
 
-def buildNYT():
+def buildNYT(scratchDir):
     url='http://www.nytimes.com'
     name='New York Times'
 
     #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
+    content=urlToContent(url, scratchDir)
 
     #get main headline
     #this will likely need if/else logic
@@ -944,7 +948,7 @@ def buildNYT():
             
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
 
-    nyt=buildNewsSource2(name, url, h1s, h2s, h3s)
+    nyt=buildNewsSource2(name, url, h1s, h2s, h3s, scratchDir)
     nyt=removeBadStories(nyt, None, None, None, None, ['https://www.nytimes.com/section/magazine', 'https://www.nytimes.com/newsletters/the-interpreter'])
 
     

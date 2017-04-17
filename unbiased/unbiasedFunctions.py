@@ -2,25 +2,29 @@ import os
 import pkgutil
 import random
 import re
+import subprocess
 import time
 
 from unbiased.unbiasedObjects import *
 
 
 #take in a url and delimiters, return twitter card
-def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
+def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
     debugging=False
     if debugging:
         print(sourceName)
         print(url)
         print()
-    
+
+    temp_article = os.path.join(scratchDir, 'temp_article.html')
+
     #download url
-    os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
+    #os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
+    subprocess.check_call(['wget', '-q', '-O', temp_article, '--no-check-certificate', url])
 
     #read the file in
-    f=open('scratch/temp_article.html', 'r', encoding="utf8")
+    f=open(temp_article, 'r', encoding="utf8")
     content=f.read()
     f.close()
 
@@ -215,7 +219,7 @@ def printOutputHTML(outputHTML, outDir):
     with open(os.path.join(outDir, 'unbiased.css'), 'w') as fp:
         fp.write(css)
 
-def buildNewsSourceArr(sourceList):
+def buildNewsSourceArr(sourceList, scratchDir):
 
     #build the data structure
     i=0
@@ -229,16 +233,19 @@ def buildNewsSourceArr(sourceList):
 
         url=source.url
 
+        temp_file = os.path.join(scratchDir, 'temp{}.html'.format(i))
+
         #download file
-        os.system('wget -q -O scratch/temp'+str(i)+'.html --no-check-certificate '+url)
+        #os.system('wget -q -O scratch/temp'+str(i)+'.html --no-check-certificate '+url)
+        subprocess.check_call(['wget', '-q', '-O', temp_file, '--no-check-certificate', url])
 
         #read file
-        f=open('scratch/temp'+str(i)+'.html', 'r', encoding="utf8")
+        f=open(temp_file, 'r', encoding="utf8")
         content=f.read()
         f.close()
         
         #delete file MAYBE DON'T DO THIS? CAUSES OS ERRORS
-        #os.remove('scratch/temp'+str(i)+'.html')
+        #os.remove(temp_file)
 
         #add stories etc to the NewsSource object
         h1s, h2s, h3s=extractURLs(content, source)
@@ -246,13 +253,13 @@ def buildNewsSourceArr(sourceList):
         #build the Article objects and add to newsSource's appropriate list
         if h1s!=None and h2s!=None:
             for url in h1s:
-                article=buildArticle(url, source.name)
+                article=buildArticle(url, source.name, scratchDir)
                 if article!=None: source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
             for url in h2s:
-                article=buildArticle(url, source.name)
+                article=buildArticle(url, source.name, scratchDir)
                 if article!=None: sourceList[i].h2Arr.append(article)
             for url in h3s:
-                article=buildArticle(url, source.name)
+                article=buildArticle(url, source.name, scratchDir)
                 if article!=None: sourceList[i].h3Arr.append(article)
             i+=1
         else:
