@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from unbiasedObjects import *
-from unbiasedFunctions import buildArticle
 import os
 import re
+
+from unbiased.unbiasedObjects import *
+from unbiased.unbiasedFunctions import buildArticle
 
 
 '''

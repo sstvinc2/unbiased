@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-
-from unbiasedObjects import *
-from unbiasedFunctions import *
-from parser import *
 import time
+
+from unbiased.unbiasedObjects import *
+from unbiased.unbiasedFunctions import *
+from unbiased.parser import *
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--webroot', default='/var/www/ubiased', help='location to write the output html')
+    parser.add_argument('-s', '--scratch', default='/opt/unbiased/scratch', help='writable scratch workspace')
     args = parser.parse_args()
 
     while True:
         print('-----------------------')
-        run(args.webroot)
+        run(args.webroot, args.scratch)
         print('-----------------------')
         time.sleep(600)
 
-def run(webroot):
+def run(webroot, scratch):
     sourceList=[]
 
     '''
@@ -33,6 +33,7 @@ def run(webroot):
     '''
 
     print('running with webroot="{}"'.format(webroot))
+    print('running with scratch="{}"'.format(scratch))
 
 
     ### These values have to be the second half of the function name
@@ -51,7 +52,7 @@ def run(webroot):
                 src=method()
                 sourceList.append(src)
                 break
-            except:
+            except Exception:
                 print('Build error. Looping again: '+source)
                 tries+=1
                 time.sleep(tries)
@@ -63,7 +64,7 @@ def run(webroot):
     outputHTML=buildOutput(newsSourceArr)
 
     #print the output file HTML
-    printOutputHTML(outputHTML, os.path.join(webroot, 'index.html'))
+    printOutputHTML(outputHTML, webroot)
 
 
 if __name__=="__main__":

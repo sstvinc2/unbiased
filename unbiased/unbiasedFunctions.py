@@ -1,8 +1,10 @@
-from unbiasedObjects import *
 import os
+import pkgutil
 import random
-import time
 import re
+import time
+
+from unbiased.unbiasedObjects import *
 
 
 #take in a url and delimiters, return twitter card
@@ -110,7 +112,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         a=Article(title, url, img, description, sourceName, author)
         return a
 
-    except:
+    except Exception:
         print('^^^^^^^^^^^^^^^^^^^^^^^^^')
         print('\tARTICLE PARSING ERROR')
         print('SOURCE: '+sourceName)
@@ -121,9 +123,8 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
 
 def buildOutput(newsSourceArr):
     #read in the template html file
-    f=open('html_template/template.html', 'r')
-    template=f.read()
-    f.close()
+    template=pkgutil.get_data('unbiased', 'html_template/template.html')
+    template = template.decode('utf8')
     
     #set the random order for sources
     h1RandomSources=[]
@@ -201,13 +202,18 @@ def buildOutput(newsSourceArr):
     #return updated text
     return template
 
-def printOutputHTML(outputHTML, outFile):
+def printOutputHTML(outputHTML, outDir):
     timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
     outputHTML=outputHTML.replace('xxTimexx', timestamp)
-    
-    f=open(outFile, 'w')
-    f.write(outputHTML)
-    f.close()
+
+    with open(os.path.join(outDir, 'index.html'), 'w') as fp:
+        fp.write(outputHTML)
+
+    # copy over the template css file
+    css = pkgutil.get_data('unbiased', 'html_template/unbiased.css')
+    css = css.decode('utf8')
+    with open(os.path.join(outDir, 'unbiased.css'), 'w') as fp:
+        fp.write(css)
 
 def buildNewsSourceArr(sourceList):
 
