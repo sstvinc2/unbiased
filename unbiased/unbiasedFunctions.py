@@ -7,6 +7,8 @@ import time
 
 from unbiased.unbiasedObjects import *
 
+from PIL import Image
+
 
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
@@ -125,7 +127,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         return None
 
 
-def buildOutput(newsSourceArr):
+def buildOutput(newsSourceArr, webroot):
     #read in the template html file
     from jinja2 import Environment, PackageLoader, select_autoescape
     env = Environment(
@@ -170,17 +172,25 @@ def buildOutput(newsSourceArr):
             print('\n\n@@@@\nNo H3 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
 
     # collect articles for each section
+    image_index = 0
+
     top_stories = []
     for i in range(len(h1RandomSources)):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
+        img_name = pullImage(article.img, image_index, webroot, 350, 200)
+        image_index += 1
+        article.img = img_name
         top_stories.append(article)
 
     middle_stories = []
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
+        img_name = pullImage(article.img, image_index, webroot, 150, 100)
+        image_index += 1
+        article.img = img_name
         middle_stories.append(article)
 
     bottom_stories = []
@@ -188,7 +198,6 @@ def buildOutput(newsSourceArr):
         pair=h3RandomPairs[i]
         article=newsSourceArr[pair[0]].h3Arr[pair[1]]
         bottom_stories.append(article)
-
 
     sourcesStr=''
     for i in range(len(newsSourceArr)-1):
@@ -274,3 +283,17 @@ def buildNewsSourceArr(sourceList, scratchDir):
     #return the original sourceList,
     #since everything should have been modified in place
     return sourceList        
+
+def pullImage(url, index, webroot, width=350, height=200):
+    extension = url.split('.')[-1].split('?')[0]
+    img_name = 'img{}.{}'.format(index, extension)
+    out_file = os.path.join(webroot, img_name)
+    try:
+        subprocess.check_call(['wget', '-q', '-O', out_file, '--no-check-certificate', url])
+    except Exception:
+        return ''
+    img = Image.open(out_file)
+    img.resize((width, height))
+    jpg_name = 'img{}.jpg'.format(index)
+    img.save(os.path.join(webroot, jpg_name), 'JPEG')
+    return jpg_name
