@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
 import argparse
+import logging
 import time
 
 from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import *
 from unbiased.parser import *
+
+logger = logging.getLogger('unbiased')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+logger.addHandler(ch)
 
 
 def main():
@@ -15,9 +23,9 @@ def main():
     args = parser.parse_args()
 
     while True:
-        print('-----------------------')
+        logger.info('Starting crawl')
         run(args.webroot, args.scratch)
-        print('-----------------------')
+        logger.info('Crawl complete. Sleeping for 600s')
         time.sleep(600)
 
 def run(webroot, scratch):
@@ -32,8 +40,8 @@ def run(webroot, scratch):
 
     '''
 
-    print('running with webroot="{}"'.format(webroot))
-    print('running with scratch="{}"'.format(scratch))
+    logger.debug('Running with webroot="{}"'.format(webroot))
+    logger.debug('Running with scratch="{}"'.format(scratch))
 
 
     ### These values have to be the second half of the function name
@@ -53,8 +61,7 @@ def run(webroot, scratch):
                 sourceList.append(src)
                 break
             except Exception as ex:
-                print(ex)
-                print('Build error. Looping again: '+source)
+                logger.error('Build error. Looping again. source={} ex={}'.format(source, ex))
                 tries+=1
                 time.sleep(tries)
     

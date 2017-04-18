@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import re
 import subprocess
 
 from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import buildArticle
+
+logger = logging.getLogger('unbiased')
 
 
 '''
@@ -39,7 +42,7 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
     h1Arr=[]
     a=buildArticle(h1URLs[0], name, scratchDir)
     if a==None:
-        print('................\nH1 Nonetype in '+name+'\n................')
+        logger.debug('H1 Nonetype in '+name)
     else:
         h1Arr.append(a)
 
@@ -49,7 +52,7 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
         if a!=None:
             h2Arr.append(a)
         else:
-            print('................\nH2 Nonetype in '+name+'\n................')
+            logger.debug('H2 Nonetype in '+name)
 
             
     h3Arr=[]
@@ -58,7 +61,7 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
         if a!=None:
             h3Arr.append(a)
         else:
-            print('................\nH3 Nonetype in '+name+'\n................')
+            logger.debug('H3 Nonetype in '+name)
 
     #BUILD THE NEWS SOURCE
     newsSource=NewsSource2(name, url, h1Arr, h2Arr, h3Arr)
@@ -119,13 +122,11 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 def removalNotification(source, title, reason, value):
-    print('*************************')
-    print('\t\tSTORY REMOVED')
-    print('SOURCE: '+source)
-    print('TITLE: \t'+title)
-    print('REASON: '+reason)
-    print('VALUE: \t'+value)
-    print('*************************\n\n')
+    logger.debug("""Story removed
+    SOURCE:\t{}
+    TITLE:\t{})
+    REASON:\t{}
+    VALUE:\t{}""".format(source, title, reason, value))
 
 
 def removeBadStoriesHelper(source, element, badStringList, arr):
@@ -133,7 +134,7 @@ def removeBadStoriesHelper(source, element, badStringList, arr):
         for i in range(len(arr)):
             for hed in arr[i]:
                 if hed==None:
-                    print("////////\nNone type found in removeBadStoriesHelper for "+source.name+"\n/////////")
+                    logger.debug("None type found in removeBadStoriesHelper for "+source.name)
                     break
                 for item in badStringList:
                     if item in getattr(hed, element):
@@ -225,7 +226,7 @@ def buildGuardian(scratchDir):
         if h1!='https://www.theguardian.com/us':
             break
         else:
-            print('Guardian loop')
+            logger.debug('Guardian loop')
         
     h1s=[h1]
 

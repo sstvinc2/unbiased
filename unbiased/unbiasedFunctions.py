@@ -1,3 +1,4 @@
+import logging
 import os
 import pkgutil
 import random
@@ -9,15 +10,15 @@ from unbiased.unbiasedObjects import *
 
 from PIL import Image
 
+logger = logging.getLogger('unbiased')
 
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
     debugging=False
     if debugging:
-        print(sourceName)
-        print(url)
-        print()
+        logger.debug(sourceName)
+        logger.debug(url)
 
     temp_article = os.path.join(scratchDir, 'temp_article.html')
 
@@ -60,7 +61,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
             img=img[:-1]
 
         if debugging:
-            print(img)
+            logger.debug(img)
 
         title=content.split('og:title" content=')[1][1:].split('>')[0]
         if title[-1]=='/':
@@ -68,7 +69,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         title=title[:-1]
 
         if debugging:
-            print(title)
+            logger.debug(title)
 
 
         author=''
@@ -90,7 +91,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
                     break
 
         if debugging:
-            print(author)
+            logger.debug(author)
 
 
         if 'og:description' in content:
@@ -104,7 +105,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
                 description=re.sub('<[^<]+?>', '', description)
                 description=description[1:200]
             else:
-                print("SHOULDN'T GET HERE")
+                logger.debug("SHOULDN'T GET HERE")
 
         #strip out self-references
         description=description.replace(sourceName+"'s", '***')
@@ -112,18 +113,16 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         description=description.replace(sourceName, '***')
 
         if debugging:
-            print(description)
+            logger.debug(description)
 
 
         a=Article(title, url, img, description, sourceName, author)
         return a
 
     except Exception:
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('\tARTICLE PARSING ERROR')
-        print('SOURCE: '+sourceName)
-        print('URL: \t'+url)
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^ \n\n')
+        logger.error("""ARTICLE PARSING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
         return None
 
 
@@ -144,7 +143,7 @@ def buildOutput(newsSourceArr, webroot):
             if x not in h1RandomSources:
                 h1RandomSources.append(x)
         else:
-            print('\n\n@@@@\nNo H1 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+            logger.debug('No H1 stories in '+newsSourceArr[x].name)
 
     #For h2s and h3s, select N random sources (can repeat), then
     #a non-repetitive random article from within
@@ -157,19 +156,18 @@ def buildOutput(newsSourceArr, webroot):
             if not pair in h2RandomPairs:
                 h2RandomPairs.append(pair)
         else:
-            print('\n\n@@@@\nNo H2 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+            logger.debug('No H2 stories in '+newsSourceArr[x].name)
 
     h3RandomPairs=[]
     while len(h3RandomPairs) < 12:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
-        print(newsSourceArr[x].name)
         if len(newsSourceArr[x].h3Arr) > 0:
             y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
             pair=[x,y]
             if not pair in h3RandomPairs:
                 h3RandomPairs.append(pair)
         else:
-            print('\n\n@@@@\nNo H3 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+            logger.debug('No H3 stories in '+newsSourceArr[x].name)
 
     # collect articles for each section
     image_index = 0
@@ -203,7 +201,7 @@ def buildOutput(newsSourceArr, webroot):
     for i in range(len(newsSourceArr)-1):
         sourcesStr+=newsSourceArr[i].name+', '
     sourcesStr+=newsSourceArr[-1].name
-    print('Successfully parsed: '+sourcesStr)
+    logger.info('Successfully parsed: '+sourcesStr)
 
     timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
 
