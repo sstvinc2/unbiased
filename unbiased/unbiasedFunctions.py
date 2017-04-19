@@ -5,7 +5,6 @@ import os
 import pkgutil
 import random
 import re
-import subprocess
 import time
 import urllib.parse
 
@@ -17,7 +16,7 @@ from unbiased.unbiasedObjects import *
 logger = logging.getLogger('unbiased')
 
 #take in a url and delimiters, return twitter card
-def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
+def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
     debugging=False
     if debugging:
@@ -142,7 +141,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         return None
 
 
-def buildOutput(newsSourceArr, webroot, scratch):
+def buildOutput(newsSourceArr, webroot):
     #read in the template html file
     from jinja2 import Environment, PackageLoader, select_autoescape
     env = Environment(
@@ -193,7 +192,7 @@ def buildOutput(newsSourceArr, webroot, scratch):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
-        img_name = pullImage(article.img, image_index, webroot, scratch, 350, 200)
+        img_name = pullImage(article.img, image_index, webroot, 350, 200)
         image_index += 1
         article.img = img_name
         top_stories.append(article)
@@ -202,7 +201,7 @@ def buildOutput(newsSourceArr, webroot, scratch):
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        img_name = pullImage(article.img, image_index, webroot, scratch, 150, 100)
+        img_name = pullImage(article.img, image_index, webroot, 150, 100)
         image_index += 1
         article.img = img_name
         middle_stories.append(article)
@@ -246,7 +245,7 @@ def printOutputHTML(outputHTML, outDir):
         with open(os.path.join(outDir, filename), 'wb') as fp:
             fp.write(data)
 
-def pullImage(url, index, webroot, scratch, target_width=350, target_height=200):
+def pullImage(url, index, webroot, target_width=350, target_height=200):
     extension = url.split('.')[-1].split('?')[0]
     img_name = 'img{}.{}'.format(index, extension)
     res = requests.get(url)

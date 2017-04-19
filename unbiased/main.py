@@ -19,14 +19,13 @@ logger.addHandler(ch)
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-w', '--webroot', default='/var/www/ubiased', help='location to write the output html')
-    parser.add_argument('-s', '--scratch', default='/opt/unbiased/scratch', help='writable scratch workspace')
     args = parser.parse_args()
 
     crawl_frequency = 600
     while True:
         logger.info('Starting crawl')
         start = time.time()
-        run(args.webroot, args.scratch)
+        run(args.webroot)
         finish = time.time()
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
@@ -34,7 +33,7 @@ def main():
         if sleeptime > 0:
             time.sleep(sleeptime)
 
-def run(webroot, scratch):
+def run(webroot):
     sourceList=[]
 
     '''
@@ -47,7 +46,6 @@ def run(webroot, scratch):
     '''
 
     logger.debug('Running with webroot="{}"'.format(webroot))
-    logger.debug('Running with scratch="{}"'.format(scratch))
 
 
     ### These values have to be the second half of the function name
@@ -65,7 +63,7 @@ def run(webroot, scratch):
                 possibles = globals().copy()
                 possibles.update(locals())
                 method = possibles.get(fn)
-                src=method(scratch)
+                src=method()
                 sourceList.append(src)
                 break
             except Exception as ex:
@@ -79,7 +77,7 @@ def run(webroot, scratch):
     newsSourceArr = sourceList
 
     #build the output file HTML
-    outputHTML=buildOutput(newsSourceArr, webroot, scratch)
+    outputHTML=buildOutput(newsSourceArr, webroot)
 
     #print the output file HTML
     printOutputHTML(outputHTML, webroot)
