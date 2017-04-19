@@ -48,10 +48,12 @@ def run(webroot, scratch):
     ### E.g. Guardian calls buildGuardian(), etc.
     sourceFnArr=['Guardian', 'TheHill', 'NPR', 'BBC', 'NBC', 'CBS',
                  'FoxNews', 'WashTimes', 'CSM', 'ABC'] #'Blaze'
-    
+
     for source in sourceFnArr:
+        logger.info('Crawling {}'.format(source))
         tries=0
         while tries<3:
+            time.sleep(tries)
             try:
                 fn='build'+source
                 possibles = globals().copy()
@@ -61,10 +63,12 @@ def run(webroot, scratch):
                 sourceList.append(src)
                 break
             except Exception as ex:
-                logger.error('Build error. Looping again. source={} ex={}'.format(source, ex))
                 tries+=1
-                time.sleep(tries)
-    
+                if tries == 3:
+                    logger.error('Build failed. source={} ex={}'.format(source, ex))
+                else:
+                    logger.debug('Build failed, retrying. source={} ex={}'.format(source, ex))
+
     #scrape all urls and build data structure
     newsSourceArr=buildNewsSourceArr(sourceList, scratch)
 

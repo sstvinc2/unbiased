@@ -1,3 +1,4 @@
+import html
 import logging
 import os
 import pkgutil
@@ -32,7 +33,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
     f.close()
 
     try:
-        if sourceName=='The Guardian':
+        if sourceName=='The Guardian US':
             #The Guardian puts an identifying banner on their og:images
             #grab the main image from the page instead
 
@@ -48,14 +49,15 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
             elif '<img class="immersive-main-media__media"' in content:
                 img=content.split('<img class="immersive-main-media__media"', 1)[1]
                 img=img.split('src="', 1)[1].split('"')[0]
-            
+            img = html.unescape(img)
+
         else:
             if 'og:image' in content:
                 img=content.split('og:image" content=')[1][1:].split('>')[0]
             elif sourceName=='ABC News':
                 img='https://c1.staticflickr.com/7/6042/6276688407_12900948a2_b.jpgX'
             if img[-1]=='/':
-                #because the quote separator could be ' or ", 
+                #because the quote separator could be ' or ",
                 #trim to just before it then lop it off
                 img=img[:-1].strip()
             img=img[:-1]
@@ -282,16 +284,34 @@ def buildNewsSourceArr(sourceList, scratchDir):
     #since everything should have been modified in place
     return sourceList        
 
-def pullImage(url, index, webroot, width=350, height=200):
+def pullImage(url, index, webroot, target_width=350, target_height=200):
     extension = url.split('.')[-1].split('?')[0]
     img_name = 'img{}.{}'.format(index, extension)
     out_file = os.path.join(webroot, img_name)
     try:
         subprocess.check_call(['wget', '-q', '-O', out_file, '--no-check-certificate', url])
-    except Exception:
+    except Exception as ex:
+        logger.error('Failed to pull image: url={} ex={}'.format(url, ex))
         return ''
     img = Image.open(out_file)
-    img.resize((width, height))
+    # crop to aspect ratio
+    target_ar = target_width / target_height
+    left, top, right, bottom = img.getbbox()
+    height = bottom - top
+    width = right - left
+    ar = width / height
+    if target_ar > ar:
+        new_height = (target_height / target_width) * width
+        bbox = (left, top + ((height - new_height) / 2), right, bottom - ((height - new_height) / 2))
+        img = img.crop(bbox)
+    elif target_ar < ar:
+        new_width = (target_width / target_height) * height
+        bbox = (left + ((width - new_width) / 2), top, right - ((width - new_width) / 2), bottom)
+        img = img.crop(bbox)
+    # resize if larger
+    if target_width * 2 < width or target_height * 2 < height:
+        img = img.resize((target_width*2, target_height*2), Image.LANCZOS)
+    # TODO: create retina images
     jpg_name = 'img{}.jpg'.format(index)
     img.save(os.path.join(webroot, jpg_name), 'JPEG')
     return jpg_name
