@@ -4,6 +4,9 @@ import logging
 import os
 import re
 import subprocess
+import urllib.parse
+
+import requests
 
 from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import buildArticle
@@ -16,21 +19,11 @@ Takes in a URL, downloads the file to a temp file,
 reads the file into a string, and returns that string
 '''
 def urlToContent(url, scratchDir, sourceEncoding='utf8'):
-    temp_file = os.path.join(scratchDir, 'temp1.html')
-
-    #download file
-    #os.system('wget -q -O scratch/temp1.html --no-check-certificate '+url)
-    subprocess.check_call(['wget', '-q', '-O', temp_file, '--no-check-certificate', url])
-    
-    #read file
-    if sourceEncoding=='utf8':
-        f=open(temp_file, 'r', encoding="utf8")
+    res = requests.get(url)
+    if res.status_code == 200:
+        return res.text
     else:
-        f=open(temp_file, 'r', encoding="latin-1")
-    content=f.read()
-    f.close()
-
-    return content
+        raise Exception("Failed to download {}".format(url))
 
 
 '''
@@ -39,6 +32,13 @@ calls the file scraper and appends the new Article object.
 Returns a newsSource2 object
 '''
 def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
+
+    url_parts = urllib.parse.urlparse(url)
+    scheme = url_parts.scheme
+    h1URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h1URLs]
+    h2URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h2URLs]
+    h3URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h3URLs]
+
     h1Arr=[]
     a=buildArticle(h1URLs[0], name, scratchDir)
     if a==None:
@@ -54,7 +54,6 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs, scratchDir):
         else:
             logger.debug('H2 Nonetype in '+name)
 
-            
     h3Arr=[]
     for x in h3URLs:
         a=buildArticle(x, name, scratchDir)

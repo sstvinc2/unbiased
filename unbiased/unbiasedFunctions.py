@@ -1,4 +1,5 @@
 import html
+import io
 import logging
 import os
 import pkgutil
@@ -6,10 +7,12 @@ import random
 import re
 import subprocess
 import time
-
-from unbiased.unbiasedObjects import *
+import urllib.parse
 
 from PIL import Image
+import requests
+
+from unbiased.unbiasedObjects import *
 
 logger = logging.getLogger('unbiased')
 
@@ -21,16 +24,25 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         logger.debug(sourceName)
         logger.debug(url)
 
-    temp_article = os.path.join(scratchDir, 'temp_article.html')
+    url_parts = urllib.parse.urlparse(url)
+    scheme = url_parts.scheme
 
     #download url
-    #os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
-    subprocess.check_call(['wget', '-q', '-O', temp_article, '--no-check-certificate', url])
+    try:
+        res = requests.get(url)
+    except Exception as ex:
+        logger.error("""ARTICLE DOWNLOADING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
+        return None
 
-    #read the file in
-    f=open(temp_article, 'r', encoding="utf8")
-    content=f.read()
-    f.close()
+    if res.status_code == 200:
+        content = res.text
+    else:
+        logger.error("""ARTICLE DOWNLOADING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
+        return None
 
     try:
         if sourceName=='The Guardian US':
@@ -61,6 +73,8 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
                 #trim to just before it then lop it off
                 img=img[:-1].strip()
             img=img[:-1]
+        # fix the scheme if it's missing
+        img = urllib.parse.urlparse(img, scheme=scheme).geturl()
 
         if debugging:
             logger.debug(img)
@@ -232,68 +246,16 @@ def printOutputHTML(outputHTML, outDir):
         with open(os.path.join(outDir, filename), 'wb') as fp:
             fp.write(data)
 
-def buildNewsSourceArr(sourceList, scratchDir):
-
-    #build the data structure
-    i=0
-    listLen=len(sourceList)
-    while i < listLen:
-        source=sourceList[i]
-
-        if type(source) is NewsSource2:
-            i+=1
-            continue
-
-        url=source.url
-
-        temp_file = os.path.join(scratchDir, 'temp{}.html'.format(i))
-
-        #download file
-        #os.system('wget -q -O scratch/temp'+str(i)+'.html --no-check-certificate '+url)
-        subprocess.check_call(['wget', '-q', '-O', temp_file, '--no-check-certificate', url])
-
-        #read file
-        f=open(temp_file, 'r', encoding="utf8")
-        content=f.read()
-        f.close()
-
-        #delete file MAYBE DON'T DO THIS? CAUSES OS ERRORS
-        #os.remove(temp_file)
-
-        #add stories etc to the NewsSource object
-        h1s, h2s, h3s=extractURLs(content, source)
-
-        #build the Article objects and add to newsSource's appropriate list
-        if h1s!=None and h2s!=None:
-            for url in h1s:
-                article=buildArticle(url, source.name, scratchDir)
-                if article!=None: source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
-            for url in h2s:
-                article=buildArticle(url, source.name, scratchDir)
-                if article!=None: sourceList[i].h2Arr.append(article)
-            for url in h3s:
-                article=buildArticle(url, source.name, scratchDir)
-                if article!=None: sourceList[i].h3Arr.append(article)
-            i+=1
-        else:
-            sourceList.remove(source)
-            listLen-=1
-
-
-    #return the original sourceList,
-    #since everything should have been modified in place
-    return sourceList
-
 def pullImage(url, index, webroot, scratch, target_width=350, target_height=200):
     extension = url.split('.')[-1].split('?')[0]
     img_name = 'img{}.{}'.format(index, extension)
-    tmp_file = os.path.join(scratch, img_name)
-    try:
-        subprocess.check_call(['wget', '-q', '-O', tmp_file, '--no-check-certificate', url])
-    except Exception as ex:
-        logger.error('Failed to pull image: url={} ex={}'.format(url, ex))
+    res = requests.get(url)
+    if res.status_code == 200:
+        content = res.content
+    else:
+        logger.error('Image not found: url={}'.format(url))
         return ''
-    img = Image.open(tmp_file)
+    img = Image.open(io.BytesIO(content))
     # crop to aspect ratio
     target_ar = target_width / target_height
     left, top, right, bottom = img.getbbox()
@@ -315,6 +277,4 @@ def pullImage(url, index, webroot, scratch, target_width=350, target_height=200)
     jpg_name = 'img{}.jpg'.format(index)
     out_file = os.path.join(webroot, jpg_name)
     img.save(out_file, 'JPEG')
-    if tmp_file != out_file:
-        os.remove(tmp_file)
     return jpg_name

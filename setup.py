@@ -13,6 +13,7 @@ setup(
     install_requires=[
         'jinja2',
         'Pillow',
+        'requests',
     ],
     entry_points={
         'console_scripts': [

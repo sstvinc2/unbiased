@@ -76,7 +76,7 @@ def run(webroot, scratch):
                     logger.debug('Build failed, retrying. source={} ex={}'.format(source, ex))
 
     #scrape all urls and build data structure
-    newsSourceArr=buildNewsSourceArr(sourceList, scratch)
+    newsSourceArr = sourceList
 
     #build the output file HTML
     outputHTML=buildOutput(newsSourceArr, webroot, scratch)
