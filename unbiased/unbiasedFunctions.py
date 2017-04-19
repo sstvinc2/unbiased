@@ -128,7 +128,7 @@ def buildArticle(url, sourceName, scratchDir, encoding=None):#, titleDelStart, t
         return None
 
 
-def buildOutput(newsSourceArr, webroot):
+def buildOutput(newsSourceArr, webroot, scratch):
     #read in the template html file
     from jinja2 import Environment, PackageLoader, select_autoescape
     env = Environment(
@@ -179,7 +179,7 @@ def buildOutput(newsSourceArr, webroot):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
-        img_name = pullImage(article.img, image_index, webroot, 350, 200)
+        img_name = pullImage(article.img, image_index, webroot, scratch, 350, 200)
         image_index += 1
         article.img = img_name
         top_stories.append(article)
@@ -188,7 +188,7 @@ def buildOutput(newsSourceArr, webroot):
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        img_name = pullImage(article.img, image_index, webroot, 150, 100)
+        img_name = pullImage(article.img, image_index, webroot, scratch, 150, 100)
         image_index += 1
         article.img = img_name
         middle_stories.append(article)
@@ -226,11 +226,11 @@ def printOutputHTML(outputHTML, outDir):
     with open(os.path.join(outDir, 'index.html'), 'w') as fp:
         fp.write(outputHTML)
 
-    # copy over the template css file
-    css = pkgutil.get_data('unbiased', 'html_template/unbiased.css')
-    css = css.decode('utf8')
-    with open(os.path.join(outDir, 'unbiased.css'), 'w') as fp:
-        fp.write(css)
+    # copy over static package files
+    for filename in ['unbiased.css', 'favicon.ico', 'favicon.png', 'apple-touch-icon.png']:
+        data = pkgutil.get_data('unbiased', os.path.join('html_template', filename))
+        with open(os.path.join(outDir, filename), 'wb') as fp:
+            fp.write(data)
 
 def buildNewsSourceArr(sourceList, scratchDir):
 
@@ -256,13 +256,13 @@ def buildNewsSourceArr(sourceList, scratchDir):
         f=open(temp_file, 'r', encoding="utf8")
         content=f.read()
         f.close()
-        
+
         #delete file MAYBE DON'T DO THIS? CAUSES OS ERRORS
         #os.remove(temp_file)
 
         #add stories etc to the NewsSource object
         h1s, h2s, h3s=extractURLs(content, source)
-        
+
         #build the Article objects and add to newsSource's appropriate list
         if h1s!=None and h2s!=None:
             for url in h1s:
@@ -279,21 +279,21 @@ def buildNewsSourceArr(sourceList, scratchDir):
             sourceList.remove(source)
             listLen-=1
 
-            
+
     #return the original sourceList,
     #since everything should have been modified in place
-    return sourceList        
+    return sourceList
 
-def pullImage(url, index, webroot, target_width=350, target_height=200):
+def pullImage(url, index, webroot, scratch, target_width=350, target_height=200):
     extension = url.split('.')[-1].split('?')[0]
     img_name = 'img{}.{}'.format(index, extension)
-    out_file = os.path.join(webroot, img_name)
+    tmp_file = os.path.join(scratch, img_name)
     try:
-        subprocess.check_call(['wget', '-q', '-O', out_file, '--no-check-certificate', url])
+        subprocess.check_call(['wget', '-q', '-O', tmp_file, '--no-check-certificate', url])
     except Exception as ex:
         logger.error('Failed to pull image: url={} ex={}'.format(url, ex))
         return ''
-    img = Image.open(out_file)
+    img = Image.open(tmp_file)
     # crop to aspect ratio
     target_ar = target_width / target_height
     left, top, right, bottom = img.getbbox()
@@ -313,5 +313,8 @@ def pullImage(url, index, webroot, target_width=350, target_height=200):
         img = img.resize((target_width*2, target_height*2), Image.LANCZOS)
     # TODO: create retina images
     jpg_name = 'img{}.jpg'.format(index)
-    img.save(os.path.join(webroot, jpg_name), 'JPEG')
+    out_file = os.path.join(webroot, jpg_name)
+    img.save(out_file, 'JPEG')
+    if tmp_file != out_file:
+        os.remove(tmp_file)
     return jpg_name

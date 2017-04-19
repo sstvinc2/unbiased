@@ -73,7 +73,7 @@ def run(webroot, scratch):
     newsSourceArr=buildNewsSourceArr(sourceList, scratch)
 
     #build the output file HTML
-    outputHTML=buildOutput(newsSourceArr, webroot)
+    outputHTML=buildOutput(newsSourceArr, webroot, scratch)
 
     #print the output file HTML
     printOutputHTML(outputHTML, webroot)
