@@ -22,11 +22,17 @@ def main():
     parser.add_argument('-s', '--scratch', default='/opt/unbiased/scratch', help='writable scratch workspace')
     args = parser.parse_args()
 
+    crawl_frequency = 600
     while True:
         logger.info('Starting crawl')
+        start = time.time()
         run(args.webroot, args.scratch)
-        logger.info('Crawl complete. Sleeping for 600s')
-        time.sleep(600)
+        finish = time.time()
+        runtime = finish - start
+        sleeptime = crawl_frequency - runtime
+        logger.info('Crawl complete in {}s. Sleeping for {}s'.format(int(runtime), int(sleeptime)))
+        if sleeptime > 0:
+            time.sleep(sleeptime)
 
 def run(webroot, scratch):
     sourceList=[]
