@@ -2,19 +2,48 @@
 
 import argparse
 import logging
+import logging.config
 import time
 
 from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import *
 from unbiased.parser import *
 
+logging.config.dictConfig({
+    'version': 1,
+    'formatters': {
+        'console': {
+            'format': '%(levelname)s %(filename)s:%(lineno)d %(message)s',
+        },
+        'file': {
+            'format': '%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'console',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'formatter': 'file',
+            'filename': '/opt/unbiased/logs/unbiased.debug.log',
+            'maxBytes': 1024 * 1024,
+            'backupCount': 3,
+        },
+    },
+    'loggers': {
+        'unbiased': {
+            'handlers': ['console', 'file'],
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+    }
+})
 logger = logging.getLogger('unbiased')
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
-logger.addHandler(ch)
-
 
 def main():
     parser = argparse.ArgumentParser()
