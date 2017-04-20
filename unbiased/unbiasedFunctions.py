@@ -141,15 +141,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         return None
 
 
-def buildOutput(newsSourceArr, webroot):
-    #read in the template html file
-    from jinja2 import Environment, PackageLoader, select_autoescape
-    env = Environment(
-        loader=PackageLoader('unbiased', 'html_template'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-    template = env.get_template('unbiased.jinja.html')
-
+def pickStories(newsSourceArr):
     #set the random order for sources
     h1RandomSources=[]
     while len(h1RandomSources)<4:
@@ -192,18 +184,12 @@ def buildOutput(newsSourceArr, webroot):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
-        img_name = pullImage(article.img, image_index, webroot, 350, 200)
-        image_index += 1
-        article.img = img_name
         top_stories.append(article)
 
     middle_stories = []
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        img_name = pullImage(article.img, image_index, webroot, 150, 100)
-        image_index += 1
-        article.img = img_name
         middle_stories.append(article)
 
     bottom_stories = []
@@ -212,13 +198,20 @@ def buildOutput(newsSourceArr, webroot):
         article=newsSourceArr[pair[0]].h3Arr[pair[1]]
         bottom_stories.append(article)
 
-    sourcesStr=''
-    for i in range(len(newsSourceArr)-1):
-        sourcesStr+=newsSourceArr[i].name+', '
-    sourcesStr+=newsSourceArr[-1].name
-    logger.info('Successfully parsed: '+sourcesStr)
+    return top_stories, middle_stories, bottom_stories
+
+def buildOutput(top_stories, middle_stories, bottom_stories):
+    #read in the template html file
+    from jinja2 import Environment, PackageLoader, select_autoescape
+    env = Environment(
+        loader=PackageLoader('unbiased', 'html_template'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    template = env.get_template('unbiased.jinja.html')
 
     timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+
+    sourcesStr = ', '.join(set([x.source for x in top_stories] + [x.source for x in middle_stories] + [x.source for x in bottom_stories]))
 
     html = template.render(
         timestamp = timestamp,
@@ -228,13 +221,11 @@ def buildOutput(newsSourceArr, webroot):
         sources = sourcesStr,
     )
 
-
     #return updated text
     return html
 
-def printOutputHTML(outputHTML, outDir):
-    timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
-    outputHTML=outputHTML.replace('xxTimexx', timestamp)
+def writeOutputHTML(outputHTML, outDir):
+    timestamp = time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
 
     with open(os.path.join(outDir, 'index.html'), 'w') as fp:
         fp.write(outputHTML)
