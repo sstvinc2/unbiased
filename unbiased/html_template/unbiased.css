@@ -174,20 +174,18 @@ a:hover{
     background-size: 100%;
     background-position: center center;
     float:left;
-    max-width:35%;
 }
 
 .middle-stories-hed{
     font-size:1.2em;
-    float:left;
-    width:300px;
     margin-left:10px;
     color:#00f;
+    padding-left:150px;
 }
 
 @media only screen and (max-width:500px){
     .middle-stories-hed{
-	max-width:60%;
+    max-width:60%;
     }
 }
 
