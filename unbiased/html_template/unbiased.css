@@ -115,10 +115,12 @@ a:hover{
 
 @media only screen and (max-width:500px){
     .top-stories-img{
-	width:auto;
+        width:inherit;
+        height:inherit;
+        max-width:350px;
+        padding-top:57.14%;
     }
 }
-    
 
 .top-stories-hed{
     font-weight:bold;
