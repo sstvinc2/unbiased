@@ -90,5 +90,5 @@ class NewsSource():
         elif level==3:
             self.h3Arr.append(article)
         else:
-            logger.error("Invalid level in NewsSource.addArtlce: " + level)
+            logger.debug("Invalid level in NewsSource.addArtlce: " + level)
 

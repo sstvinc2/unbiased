@@ -9,7 +9,9 @@ from unbiased.unbiasedObjects import *
 from unbiased.unbiasedFunctions import *
 from unbiased.parser import *
 
-logging.config.dictConfig({
+logger = logging.getLogger('unbiased')
+
+logging_config = {
     'version': 1,
     'formatters': {
         'console': {
@@ -29,7 +31,7 @@ logging.config.dictConfig({
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'DEBUG',
             'formatter': 'file',
-            'filename': '/opt/unbiased/logs/unbiased.debug.log',
+            'filename': '',
             'maxBytes': 1024 * 1024,
             'backupCount': 3,
         },
@@ -42,13 +44,16 @@ logging.config.dictConfig({
     'root': {
         'level': 'DEBUG',
     }
-})
-logger = logging.getLogger('unbiased')
+}
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--webroot', default='/var/www/ubiased', help='location to write the output html')
+    parser.add_argument('-w', '--webroot', help='location of config file')
+    parser.add_argument('-l', '--log-dir', help='location to write logs')
     args = parser.parse_args()
+
+    logging_config['handlers']['file']['filename'] = os.path.join(args.log_dir, 'unbiased.debug.log')
+    logging.config.dictConfig(logging_config)
 
     crawl_frequency = 600
     while True:

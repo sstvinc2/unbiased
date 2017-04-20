@@ -30,7 +30,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
     try:
         res = requests.get(url)
     except Exception as ex:
-        logger.error("""ARTICLE DOWNLOADING ERROR
+        logger.debug("""ARTICLE DOWNLOADING ERROR
         SOURCE:\t{}
         URL:\t{}""".format(sourceName, url))
         return None
@@ -38,7 +38,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
     if res.status_code == 200:
         content = res.text
     else:
-        logger.error("""ARTICLE DOWNLOADING ERROR
+        logger.debug("""ARTICLE DOWNLOADING ERROR
         SOURCE:\t{}
         URL:\t{}""".format(sourceName, url))
         return None
@@ -135,7 +135,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         return a
 
     except Exception:
-        logger.error("""ARTICLE PARSING ERROR
+        logger.debug("""ARTICLE PARSING ERROR
         SOURCE:\t{}
         URL:\t{}""".format(sourceName, url))
         return None
@@ -243,7 +243,7 @@ def pullImage(url, index, webroot, target_width=350, target_height=200):
     if res.status_code == 200:
         content = res.content
     else:
-        logger.error('Image not found: url={}'.format(url))
+        logger.debug('Image not found: url={}'.format(url))
         return ''
     img = Image.open(io.BytesIO(content))
     # crop to aspect ratio
