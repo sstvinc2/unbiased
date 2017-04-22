@@ -48,11 +48,18 @@ logging_config = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--webroot', help='location of config file')
-    parser.add_argument('-l', '--log-dir', help='location to write logs')
+    parser.add_argument('webroot', help='location to write html output')
+    parser.add_argument('-l', '--log-dir', help='location to write detailed logs')
+    parser.add_argument('-d', '--debug', action='store_true', help='run in debug mode')
     args = parser.parse_args()
 
-    logging_config['handlers']['file']['filename'] = os.path.join(args.log_dir, 'unbiased.debug.log')
+    if args.log_dir:
+        logging_config['handlers']['file']['filename'] = os.path.join(args.log_dir, 'unbiased.debug.log')
+    else:
+        logging_config['loggers']['unbiased']['handlers'].remove('file')
+        del logging_config['handlers']['file']
+    if args.debug:
+        logging_config['handlers']['console']['level'] = 'DEBUG'
     logging.config.dictConfig(logging_config)
 
     crawl_frequency = 600
