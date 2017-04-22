@@ -1,0 +1,12 @@
+[Unit]
+Description=Unbiased News
+
+[Service]
+Type=simple
+ExecStart=/opt/unbiased/venv/bin/unbiased /opt/unbiased/webroot -l /opt/unbiased/logs
+WorkingDirectory=/opt/unbiased
+User=www-data
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
