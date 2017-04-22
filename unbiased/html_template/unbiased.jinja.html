@@ -9,64 +9,71 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <title>UnBiased</title>
   </head>
-<body>
 
-<div id="page-header">
-  <span id="title-1" class="title">un</span><span id="title-2" class="title">biased</span><br />
-  <span id="subtitle">a different way to read the news</span>
-  <p id="timestamp">Last updated: {{ timestamp }}</p>
-</div>
+  <body>
 
-<div id="page-container">
-
-  <div id="top-stories">
-
-    {% for story in top_stories %}
-
-    <div class="top-story">
-      <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
-        <div class="top-stories-img" style="background-image: url('{{ story.img }}');" /></div>
-        <div class="top-stories-hed">{{ story.title|safe }}</div>
-      </a>
-      <div class="top-stories-desc">{{ story.description|safe|truncate(140) }}</div>
+    <div id="page-header">
+      <span id="title-1" class="title">un</span><span id="title-2" class="title">biased</span><br />
+      <span id="subtitle">a different way to read the news</span>
+      <p id="timestamp">Last updated: {{ timestamp }}</p>
     </div>
 
-    {% endfor %}
+    <div id="top-stories">
 
-  </div>
+      {% for story in top_stories %}
 
-  <div id="middle-stories">
-
-    {% for story in middle_stories %}
-
-    <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
-      <div class="middle-story">
-        <div class="middle-stories-img" style="background-image: url('{{ story.img }}');">
-        </div>
-        <div class="middle-stories-hed">{{ story.title|safe }}</div>
+      <div class="top-story">
+        <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
+          <div class="top-stories-img" style="background-image: url('{{ story.img }}');" /></div>
+          <div class="top-stories-hed">{{ story.title|safe }}</div>
+        </a>
+        <div class="top-stories-desc">{{ story.description|safe|truncate(140) }}</div>
       </div>
-    </a>
 
-    {% endfor %}
+      {% endfor %}
 
-  </div>
-
-  <div id="bottom-stories">
-
-    {% for story in bottom_stories %}
-
-    <div class="bottom-story">
-      <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">{{ story.title|safe }}</a>
     </div>
 
-    {% endfor %}
+    <hr/>
 
-  </div>
+    <div class="c2">
 
-</div>
+      <div id="middle-stories">
 
-<div id="sources">
-  Sources: {{ sources }}
-</div>
-</body>
+        {% for story in middle_stories %}
+
+        <div class="middle-story">
+          <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">
+            <p>
+              <div class="middle-stories-img" style="background-image: url('{{ story.img }}');"></div>
+              {{ story.title|safe }}
+            </p>
+          </a>
+        </div>
+
+        {% endfor %}
+
+      </div>
+
+      <hr/>
+
+      <div id="bottom-stories">
+
+        {% for story in bottom_stories %}
+
+        <div class="bottom-story">
+          <a target="_blank" onclick="window.open('{{ story.url }}', '_blank')">{{ story.title|safe }}</a>
+        </div>
+
+        {% endfor %}
+
+      </div>
+
+    </div>
+
+    <div id="sources">
+      Sources: {{ sources }}
+    </div>
+
+  </body>
 </html>
