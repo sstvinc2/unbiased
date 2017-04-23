@@ -131,7 +131,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
             logger.debug(description)
 
 
-        a=Article(title, url, img, description, sourceName, author)
+        a=Article(html.unescape(title), url, img, html.unescape(description), sourceName, html.unescape(author))
         return a
 
     except Exception:
@@ -209,12 +209,14 @@ def buildOutput(top_stories, middle_stories, bottom_stories):
     )
     template = env.get_template('unbiased.jinja.html')
 
-    timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+    timestamp = time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+    utime = int(time.time())
 
     sourcesStr = ', '.join(set([x.source for x in top_stories] + [x.source for x in middle_stories] + [x.source for x in bottom_stories]))
 
     html = template.render(
         timestamp = timestamp,
+        utime = utime,
         top_stories = top_stories,
         middle_stories = middle_stories,
         bottom_stories = bottom_stories,
