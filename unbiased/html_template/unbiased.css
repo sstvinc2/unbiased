@@ -158,7 +158,7 @@ hr {
     flex: 1 0 250px;
   }
   .c2 {
-    display: inherit;
+    flex-direction: column;
   }
   .c2 hr {
     display: inherit;
