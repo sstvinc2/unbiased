@@ -1,29 +1,50 @@
-from unbiasedObjects import *
+import html
+import io
+import logging
 import os
+import pkgutil
 import random
-import time
 import re
+import time
+import urllib.parse
 
+from PIL import Image
+import requests
+
+from unbiased.unbiasedObjects import *
+
+logger = logging.getLogger('unbiased')
 
 #take in a url and delimiters, return twitter card
 def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, imgDelStart, imgDelEnd):
 
     debugging=False
     if debugging:
-        print(sourceName)
-        print(url)
-        print()
-    
-    #download url
-    os.system('wget -q -O scratch/temp_article.html --no-check-certificate '+url)
+        logger.debug(sourceName)
+        logger.debug(url)
 
-    #read the file in
-    f=open('scratch/temp_article.html', 'r', encoding="utf8")
-    content=f.read()
-    f.close()
+    url_parts = urllib.parse.urlparse(url)
+    scheme = url_parts.scheme
+
+    #download url
+    try:
+        res = requests.get(url)
+    except Exception as ex:
+        logger.debug("""ARTICLE DOWNLOADING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
+        return None
+
+    if res.status_code == 200:
+        content = res.text
+    else:
+        logger.debug("""ARTICLE DOWNLOADING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
+        return None
 
     try:
-        if sourceName=='The Guardian':
+        if sourceName=='The Guardian US':
             #The Guardian puts an identifying banner on their og:images
             #grab the main image from the page instead
 
@@ -39,20 +60,23 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
             elif '<img class="immersive-main-media__media"' in content:
                 img=content.split('<img class="immersive-main-media__media"', 1)[1]
                 img=img.split('src="', 1)[1].split('"')[0]
-            
+            img = html.unescape(img)
+
         else:
             if 'og:image' in content:
                 img=content.split('og:image" content=')[1][1:].split('>')[0]
             elif sourceName=='ABC News':
                 img='https://c1.staticflickr.com/7/6042/6276688407_12900948a2_b.jpgX'
             if img[-1]=='/':
-                #because the quote separator could be ' or ", 
+                #because the quote separator could be ' or ",
                 #trim to just before it then lop it off
                 img=img[:-1].strip()
             img=img[:-1]
+        # fix the scheme if it's missing
+        img = urllib.parse.urlparse(img, scheme=scheme).geturl()
 
         if debugging:
-            print(img)
+            logger.debug(img)
 
         title=content.split('og:title" content=')[1][1:].split('>')[0]
         if title[-1]=='/':
@@ -60,7 +84,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         title=title[:-1]
 
         if debugging:
-            print(title)
+            logger.debug(title)
 
 
         author=''
@@ -82,7 +106,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
                     break
 
         if debugging:
-            print(author)
+            logger.debug(author)
 
 
         if 'og:description' in content:
@@ -96,7 +120,7 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
                 description=re.sub('<[^<]+?>', '', description)
                 description=description[1:200]
             else:
-                print("SHOULDN'T GET HERE")
+                logger.debug("SHOULDN'T GET HERE")
 
         #strip out self-references
         description=description.replace(sourceName+"'s", '***')
@@ -104,27 +128,20 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         description=description.replace(sourceName, '***')
 
         if debugging:
-            print(description)
+            logger.debug(description)
 
 
-        a=Article(title, url, img, description, sourceName, author)
+        a=Article(html.unescape(title), url, img, html.unescape(description), sourceName, html.unescape(author))
         return a
 
-    except:
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^')
-        print('\tARTICLE PARSING ERROR')
-        print('SOURCE: '+sourceName)
-        print('URL: \t'+url)
-        print('^^^^^^^^^^^^^^^^^^^^^^^^^ \n\n')
+    except Exception:
+        logger.debug("""ARTICLE PARSING ERROR
+        SOURCE:\t{}
+        URL:\t{}""".format(sourceName, url))
         return None
 
 
-def buildOutput(newsSourceArr):
-    #read in the template html file
-    f=open('html_template/template.html', 'r')
-    template=f.read()
-    f.close()
-    
+def pickStories(newsSourceArr):
     #set the random order for sources
     h1RandomSources=[]
     while len(h1RandomSources)<4:
@@ -133,10 +150,10 @@ def buildOutput(newsSourceArr):
             if x not in h1RandomSources:
                 h1RandomSources.append(x)
         else:
-            print('\n\n@@@@\nNo H1 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
-    
+            logger.debug('No H1 stories in '+newsSourceArr[x].name)
+
     #For h2s and h3s, select N random sources (can repeat), then
-    #a non-repetitive random article from within 
+    #a non-repetitive random article from within
     h2RandomPairs=[]
     while len(h2RandomPairs) < 6:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
@@ -146,114 +163,110 @@ def buildOutput(newsSourceArr):
             if not pair in h2RandomPairs:
                 h2RandomPairs.append(pair)
         else:
-            print('\n\n@@@@\nNo H2 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+            logger.debug('No H2 stories in '+newsSourceArr[x].name)
 
     h3RandomPairs=[]
     while len(h3RandomPairs) < 12:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
-        print(newsSourceArr[x].name)
         if len(newsSourceArr[x].h3Arr) > 0:
             y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
             pair=[x,y]
             if not pair in h3RandomPairs:
                 h3RandomPairs.append(pair)
         else:
-            print('\n\n@@@@\nNo H3 stories in '+newsSourceArr[x].name+'\n@@@@\n\n')
+            logger.debug('No H3 stories in '+newsSourceArr[x].name)
 
-    #replace html template locations with data from newsSourceArr
+    # collect articles for each section
+    image_index = 0
+
+    top_stories = []
     for i in range(len(h1RandomSources)):
         source=newsSourceArr[h1RandomSources[i]]
         randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
         article=source.h1Arr[randomArticle]
-        template=template.replace('xxURL1-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle1-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg1-'+str(i+1)+'xx', article.img)
-        desc=article.description
-        if len(desc)>144:
-            desc=desc[:141]
-            desc=desc.split()[:-1]
-            desc=' '.join(desc)+' ...'
-        template=template.replace('xxDesc1-'+str(i+1)+'xx', desc)
+        top_stories.append(article)
 
+    middle_stories = []
     for i in range(len(h2RandomPairs)):
         pair=h2RandomPairs[i]
         article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        template=template.replace('xxURL2-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle2-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg2-'+str(i+1)+'xx', article.img)
+        middle_stories.append(article)
 
+    bottom_stories = []
     for i in range(len(h3RandomPairs)):
         pair=h3RandomPairs[i]
         article=newsSourceArr[pair[0]].h3Arr[pair[1]]
-        template=template.replace('xxURL3-'+str(i+1)+'xx', article.url)
-        template=template.replace('xxTitle3-'+str(i+1)+'xx', article.title)
-        template=template.replace('xxImg3-'+str(i+1)+'xx', article.img)
+        bottom_stories.append(article)
 
+    return top_stories, middle_stories, bottom_stories
 
-    sourcesStr=''
-    for i in range(len(newsSourceArr)-1):
-        sourcesStr+=newsSourceArr[i].name+', '
-    sourcesStr+=newsSourceArr[-1].name
-    print('Successfully parsed: '+sourcesStr)
-    template=template.replace('xxSourcesxx', sourcesStr)
-        
+def buildOutput(top_stories, middle_stories, bottom_stories):
+    #read in the template html file
+    from jinja2 import Environment, PackageLoader, select_autoescape
+    env = Environment(
+        loader=PackageLoader('unbiased', 'html_template'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    template = env.get_template('unbiased.jinja.html')
+
+    timestamp = time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+    utime = int(time.time())
+
+    sourcesStr = ', '.join(set([x.source for x in top_stories] + [x.source for x in middle_stories] + [x.source for x in bottom_stories]))
+
+    html = template.render(
+        timestamp = timestamp,
+        utime = utime,
+        top_stories = top_stories,
+        middle_stories = middle_stories,
+        bottom_stories = bottom_stories,
+        sources = sourcesStr,
+    )
 
     #return updated text
-    return template
+    return html
 
-def printOutputHTML(outputHTML, outFile):
-    timestamp=time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
-    outputHTML=outputHTML.replace('xxTimexx', timestamp)
-    
-    f=open(outFile, 'w')
-    f.write(outputHTML)
-    f.close()
+def writeOutputHTML(outputHTML, outDir):
+    timestamp = time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
 
-def buildNewsSourceArr(sourceList):
+    with open(os.path.join(outDir, 'index.html'), 'w') as fp:
+        fp.write(outputHTML)
 
-    #build the data structure
-    i=0
-    listLen=len(sourceList)
-    while i < listLen:
-        source=sourceList[i]
+    # copy over static package files
+    for filename in ['unbiased.css', 'favicon.ico', 'favicon.png', 'apple-touch-icon.png']:
+        data = pkgutil.get_data('unbiased', os.path.join('html_template', filename))
+        with open(os.path.join(outDir, filename), 'wb') as fp:
+            fp.write(data)
 
-        if type(source) is NewsSource2:
-            i+=1
-            continue
-
-        url=source.url
-
-        #download file
-        os.system('wget -q -O scratch/temp'+str(i)+'.html --no-check-certificate '+url)
-
-        #read file
-        f=open('scratch/temp'+str(i)+'.html', 'r', encoding="utf8")
-        content=f.read()
-        f.close()
-        
-        #delete file MAYBE DON'T DO THIS? CAUSES OS ERRORS
-        #os.remove('scratch/temp'+str(i)+'.html')
-
-        #add stories etc to the NewsSource object
-        h1s, h2s, h3s=extractURLs(content, source)
-        
-        #build the Article objects and add to newsSource's appropriate list
-        if h1s!=None and h2s!=None:
-            for url in h1s:
-                article=buildArticle(url, source.name)
-                if article!=None: source.addArticle(article, 1) #sourceList[i].h1Arr.append(article)
-            for url in h2s:
-                article=buildArticle(url, source.name)
-                if article!=None: sourceList[i].h2Arr.append(article)
-            for url in h3s:
-                article=buildArticle(url, source.name)
-                if article!=None: sourceList[i].h3Arr.append(article)
-            i+=1
-        else:
-            sourceList.remove(source)
-            listLen-=1
-
-            
-    #return the original sourceList,
-    #since everything should have been modified in place
-    return sourceList        
+def pullImage(url, index, webroot, target_width=350, target_height=200):
+    extension = url.split('.')[-1].split('?')[0]
+    img_name = 'img{}.{}'.format(index, extension)
+    res = requests.get(url)
+    if res.status_code == 200:
+        content = res.content
+    else:
+        logger.debug('Image not found: url={}'.format(url))
+        return ''
+    img = Image.open(io.BytesIO(content))
+    # crop to aspect ratio
+    target_ar = target_width / target_height
+    left, top, right, bottom = img.getbbox()
+    height = bottom - top
+    width = right - left
+    ar = width / height
+    if target_ar > ar:
+        new_height = (target_height / target_width) * width
+        bbox = (left, top + ((height - new_height) / 2), right, bottom - ((height - new_height) / 2))
+        img = img.crop(bbox)
+    elif target_ar < ar:
+        new_width = (target_width / target_height) * height
+        bbox = (left + ((width - new_width) / 2), top, right - ((width - new_width) / 2), bottom)
+        img = img.crop(bbox)
+    # resize if larger
+    if target_width * 2 < width or target_height * 2 < height:
+        img = img.resize((target_width*2, target_height*2), Image.LANCZOS)
+    # TODO: create retina images
+    jpg_name = 'img{}.jpg'.format(index)
+    out_file = os.path.join(webroot, jpg_name)
+    img.save(out_file, 'JPEG')
+    return jpg_name

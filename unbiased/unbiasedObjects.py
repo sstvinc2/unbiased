@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger('unbiased')
+
 class Article():
     title=''
     url=''
@@ -86,5 +90,5 @@ class NewsSource():
         elif level==3:
             self.h3Arr.append(article)
         else:
-            print("Error: invalid level in NewsSource.addArtlce: ", level)
+            logger.debug("Invalid level in NewsSource.addArtlce: " + level)
 

@@ -1,0 +1,172 @@
+body {
+    margin: 0;
+}
+
+a:link, a:visited, a:hover, a:active, a {
+    color: #00f;
+    text-decoration:none;
+}
+
+a:hover {
+    cursor:pointer;
+}
+
+hr {
+  max-width: 890px;
+  margin: 5px auto;
+  border: 0;
+  height: 3px;
+  background-color: #BB133E;
+}
+
+#page-header {
+    width: 100%;
+    text-align: center;
+    padding: .5em 0 1em;
+    margin-bottom: 1em;
+    border-bottom: 3px solid #BB133E;
+    background: #002147;
+}
+
+.title {
+    font-size: 3em;
+}
+
+#title-1 {
+    font-style: italic;
+    color: #fff;
+}
+
+#title-2 {
+    color: #fff;
+}
+
+#subtitle {
+    font-size: 1.25em;
+    color: #ccc;
+}
+
+#timestamp {
+    margin: .5em 0 0 0;
+    font-size: .8em;
+    color: #cc6;
+}
+
+#top-stories {
+    max-width: 900px;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 5px auto;
+}
+
+.top-story {
+    flex: 1 0 350px;
+    margin: 5px;
+    padding: 10px;
+    border:2px solid #eee;
+}
+
+.top-stories-img {
+  width: 100%;
+  padding-bottom: 57%;
+  background-size: 100%;
+  background-position: center center;
+}
+
+.top-stories-hed {
+    font-size: 1.3em;
+    margin: 10px 0;
+    color: #00f;
+}
+
+.top-stories-desc {
+    font-size: 1em;
+}
+
+.c2 {
+  max-width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 5px auto;
+}
+
+.c2 hr {
+  display: none;
+}
+
+#middle-stories {
+    flex: 7 0 200px;
+}
+
+.middle-story {
+    margin: 5px;
+    border: 2px solid #eee;
+}
+
+.middle-story a {
+    padding: 10px;
+    display: inline-block;
+}
+
+.middle-story a p {
+    margin: 0;
+}
+
+.middle-stories-img{
+    width: 150px;
+    height: 100px;
+    background-size: 100%;
+    background-position: center center;
+    float: left;
+    margin-right: 10px;
+}
+
+#middle-stories a {
+    font-size: 1.1em;
+    color: #00f;
+}
+
+#bottom-stories {
+  flex: 3 0 200px;
+  border: 2px solid #eee;
+  margin: 5px;
+}
+
+.bottom-story {
+    padding: 10px;
+    color: #00f;
+}
+
+#sources {
+    margin: 2em 5px 0 5px;
+    font-size: .8em;
+}
+
+@media (max-width: 900px) {
+  hr {
+    width: inherit;
+    margin: 5px;
+  }
+}
+
+@media (max-width: 767px) {
+  #top-stories {
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+  .top-story {
+    flex: 1 0 250px;
+  }
+  .c2 {
+    flex-direction: column;
+  }
+  .c2 hr {
+    display: inherit;
+  }
+  #middle-stories {
+    flex: inherit;
+  }
+  #bottom-stories {
+    flex: inherit;
+  }
+}

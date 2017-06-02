@@ -1,0 +1,25 @@
+from setuptools import setup
+
+setup(
+    name="unbiased",
+    version="1",
+    packages=['unbiased'],
+    package_data={
+        'unbiased': [
+            'html_template/*.html',
+            'html_template/*.css',
+            'html_template/*.ico',
+            'html_template/*.png',
+        ],
+    },
+    install_requires=[
+        'jinja2',
+        'Pillow',
+        'requests',
+    ],
+    entry_points={
+        'console_scripts': [
+            'unbiased = unbiased.main:main',
+        ],
+    },
+)

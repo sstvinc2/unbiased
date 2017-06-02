@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
-from unbiasedObjects import *
-from unbiasedFunctions import buildArticle
+import logging
 import os
 import re
+import urllib.parse
+
+import requests
+
+from unbiased.unbiasedObjects import *
+from unbiased.unbiasedFunctions import buildArticle
+
+logger = logging.getLogger('unbiased')
 
 
 '''
@@ -11,18 +18,11 @@ Takes in a URL, downloads the file to a temp file,
 reads the file into a string, and returns that string
 '''
 def urlToContent(url, sourceEncoding='utf8'):
-    #download file
-    os.system('wget -q -O scratch/temp1.html --no-check-certificate '+url)
-    
-    #read file
-    if sourceEncoding=='utf8':
-        f=open('scratch/temp1.html', 'r', encoding="utf8")
+    res = requests.get(url)
+    if res.status_code == 200:
+        return res.text
     else:
-        f=open('scratch/temp1.html', 'r', encoding="latin-1")
-    content=f.read()
-    f.close()
-
-    return content
+        raise Exception("Failed to download {}".format(url))
 
 
 '''
@@ -31,10 +31,17 @@ calls the file scraper and appends the new Article object.
 Returns a newsSource2 object
 '''
 def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
+
+    url_parts = urllib.parse.urlparse(url)
+    scheme = url_parts.scheme
+    h1URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h1URLs]
+    h2URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h2URLs]
+    h3URLs = [urllib.parse.urlparse(x, scheme=scheme).geturl() for x in h3URLs]
+
     h1Arr=[]
     a=buildArticle(h1URLs[0], name)
     if a==None:
-        print('................\nH1 Nonetype in '+name+'\n................')
+        logger.debug('H1 Nonetype in '+name)
     else:
         h1Arr.append(a)
 
@@ -44,16 +51,15 @@ def buildNewsSource2(name, url, h1URLs, h2URLs, h3URLs):
         if a!=None:
             h2Arr.append(a)
         else:
-            print('................\nH2 Nonetype in '+name+'\n................')
+            logger.debug('H2 Nonetype in '+name)
 
-            
     h3Arr=[]
     for x in h3URLs:
         a=buildArticle(x, name)
         if a!=None:
             h3Arr.append(a)
         else:
-            print('................\nH3 Nonetype in '+name+'\n................')
+            logger.debug('H3 Nonetype in '+name)
 
     #BUILD THE NEWS SOURCE
     newsSource=NewsSource2(name, url, h1Arr, h2Arr, h3Arr)
@@ -114,13 +120,11 @@ def removeDuplicates(h1s, h2s, h3s):
 
 
 def removalNotification(source, title, reason, value):
-    print('*************************')
-    print('\t\tSTORY REMOVED')
-    print('SOURCE: '+source)
-    print('TITLE: \t'+title)
-    print('REASON: '+reason)
-    print('VALUE: \t'+value)
-    print('*************************\n\n')
+    logger.debug("""Story removed
+    SOURCE:\t{}
+    TITLE:\t{})
+    REASON:\t{}
+    VALUE:\t{}""".format(source, title, reason, value))
 
 
 def removeBadStoriesHelper(source, element, badStringList, arr):
@@ -128,7 +132,7 @@ def removeBadStoriesHelper(source, element, badStringList, arr):
         for i in range(len(arr)):
             for hed in arr[i]:
                 if hed==None:
-                    print("////////\nNone type found in removeBadStoriesHelper for "+source.name+"\n/////////")
+                    logger.debug("None type found in removeBadStoriesHelper for "+source.name)
                     break
                 for item in badStringList:
                     if item in getattr(hed, element):
@@ -220,7 +224,7 @@ def buildGuardian():
         if h1!='https://www.theguardian.com/us':
             break
         else:
-            print('Guardian loop')
+            logger.debug('Guardian loop')
         
     h1s=[h1]
 
@@ -822,6 +826,7 @@ def buildFoxNews():
     h1=h1.split('<h1><a href="', 1)[1]
     h1=h1.split('"', 1)[0]
     h1s=[h1]
+    h1s = ['http:' + x if x.startswith('//') else x for x in h1s]
 
     #GET SECONDARY HEADLINES
     h2=content
@@ -833,6 +838,7 @@ def buildFoxNews():
         x=h2.split('"', 1)[0]
         if h1 not in x:
             h2s.append(x)
+    h2s = ['http:' + x if x.startswith('//') else x for x in h2s]
 
     #GET TERTIARY HEADLINES
     h3=content
@@ -844,14 +850,15 @@ def buildFoxNews():
         x=h3.split('"', 1)[0]
         if h1 not in x:
             h3s.append(x)
+    h3s = ['http:' + x if x.startswith('//') else x for x in h3s]
 
-    h1s, h2s, h3s = removeDuplicates([h1], h2s, h3s)
+    h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
     fox=buildNewsSource2(name, url, h1s, h2s, h3s)
 
     #REMOVE BAD STORIES
     badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier', 'Tucker']
     badDescArr=['Sean Hannity']
-    badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
+    badAuthorArr=['Bill O\'Reilly', 'Sean Hannity', 'Howard Kurtz']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
     badURLArr=['http://www.foxnews.com/opinion', 'videos.foxnews.com']
     fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)

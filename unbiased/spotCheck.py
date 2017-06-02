@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-
-from parser import *
-from unbiasedObjects import *
 import sys
+
+from unbiased.parser import *
+from unbiased.unbiasedObjects import *
 
 def spotCheck(src):
 

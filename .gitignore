@@ -1,10 +1,15 @@
 *.pyc
 *~
+.DS_Store
 __pycache__/
-scratch/*.html
+unbiased/scratch/*.html
 legacy_py/
 unbiased.html
 html_template/Penguins.jpg
 html_template/BAK*
+build/
+dist/
+venv/
+unbiased.egg-info/
 #*
 .#*
