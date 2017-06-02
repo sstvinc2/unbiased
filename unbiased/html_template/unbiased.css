@@ -163,4 +163,10 @@ hr {
   .c2 hr {
     display: inherit;
   }
+  #middle-stories {
+    flex: inherit;
+  }
+  #bottom-stories {
+    flex: inherit;
+  }
 }
