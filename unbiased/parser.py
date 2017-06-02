@@ -858,7 +858,7 @@ def buildFoxNews():
     #REMOVE BAD STORIES
     badTitleArr=['O&#039;Reilly', 'Fox News', 'Brett Baier', 'Tucker']
     badDescArr=['Sean Hannity']
-    badAuthorArr=['Bill O\'Reilly', 'Sean Hannity']
+    badAuthorArr=['Bill O\'Reilly', 'Sean Hannity', 'Howard Kurtz']
     badImgArr=['http://www.foxnews.com/content/dam/fox-news/logo/og-fn-foxnews.jpg']
     badURLArr=['http://www.foxnews.com/opinion', 'videos.foxnews.com']
     fox=removeBadStories(fox, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr)
