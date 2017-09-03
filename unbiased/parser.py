@@ -127,24 +127,27 @@ def removalNotification(source, title, reason, value):
     VALUE:\t{}""".format(source, title, reason, value))
 
 
-def removeBadStoriesHelper(source, element, badStringList, arr):
-    if badStringList!=None:
-        for i in range(len(arr)):
-            for hed in arr[i]:
-                if hed==None:
-                    logger.debug("None type found in removeBadStoriesHelper for "+source.name)
-                    break
-                for item in badStringList:
-                    if item in getattr(hed, element):
-                        arr[i].remove(hed)
-                        #if it's in the h1 slot, bump up the 
-                        #  first h2 into the h1 slot
-                        if i==0:
-                            arr[0].append(arr[1][0])
-                            arr[1].remove(arr[1][0])
-                        removalNotification(source.name, hed.title, element, item)
-                        
-    
+def removeBadStoriesHelper(source, element, badStringList, article_tiers):
+    if badStringList is None:
+        return
+    for tier, articles in enumerate(article_tiers):
+        print(tier, articles)
+        for idx, article in enumerate(articles):
+            print(article)
+            if article is None:
+                logger.debug("None type found in removeBadStoriesHelper for {}".format(source.name))
+                break
+            for item in badStringList:
+                if item in getattr(article, element):
+                    article_tiers[tier].remove(article)
+                    # if it's in the h1 slot, bump up the
+                    # first h2 into the h1 slot
+                    if tier == 0 and len(article_tiers[1]) > 0:
+                        article_tiers[0].append(article_tiers[1][0])
+                        article_tiers[1].remove(article_tiers[1][0])
+                    removalNotification(source.name, article.title, element, item)
+
+
 def removeBadStories(source, badTitleArr, badDescArr, badAuthorArr, badImgArr, badURLArr=None):
 
     arr=[source.h1Arr, source.h2Arr, source.h3Arr]
