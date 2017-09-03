@@ -19,7 +19,10 @@ class Article():
         self.author=author
 
     def __str__(self):
-        return '-----------\n'+self.title+'\n'+self.author+'\n'+self.source+'\n'+self.description+'\n'+self.url+'\n'+self.img+'\n'+'-----------'
+        return '-----------\ntitle: {}\nauthor: {}\nsource: {}\ndescription: {}\nurl: {}\nimg: {}\n-----------'.format(self.title, self.author, self.source, self.description, self.url, self.img)
+
+    def __repr__(self):
+        return '{}({}, {}, {})'.format(self.source.replace(' ', ''), self.title, self.author, self.url)
 
 
 class NewsSource2():

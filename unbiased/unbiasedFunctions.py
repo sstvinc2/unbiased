@@ -142,8 +142,10 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
 
 
 def pickStories(newsSourceArr):
+    # TODO: refactor to avoid infinite loops
     #set the random order for sources
     h1RandomSources=[]
+    guard = 0
     while len(h1RandomSources)<4:
         x=random.sample(range(len(newsSourceArr)), 1)[0]
         if len(newsSourceArr[x].h1Arr)>0:
@@ -151,6 +153,9 @@ def pickStories(newsSourceArr):
                 h1RandomSources.append(x)
         else:
             logger.debug('No H1 stories in '+newsSourceArr[x].name)
+        guard += 1
+        if guard > 100:
+            return [], [], []
 
     #For h2s and h3s, select N random sources (can repeat), then
     #a non-repetitive random article from within
