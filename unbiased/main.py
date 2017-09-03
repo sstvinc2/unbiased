@@ -51,6 +51,7 @@ def main():
     parser.add_argument('webroot', help='location to write html output')
     parser.add_argument('-l', '--log-dir', help='location to write detailed logs')
     parser.add_argument('-d', '--debug', action='store_true', help='run in debug mode')
+    parser.add_argument('-o', '--oneshot', action='store_true', help='run once and exit')
     args = parser.parse_args()
 
     if args.log_dir:
@@ -71,6 +72,8 @@ def main():
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
         logger.info('Crawl complete in {}s. Sleeping for {}s'.format(int(runtime), int(sleeptime)))
+        if args.oneshot:
+            break
         if sleeptime > 0:
             time.sleep(sleeptime)
 
