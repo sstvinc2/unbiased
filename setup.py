@@ -16,6 +16,8 @@ setup(
         'jinja2',
         'Pillow',
         'requests',
+        'lxml',
+        'beautifulsoup4',
     ],
     entry_points={
         'console_scripts': [

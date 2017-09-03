@@ -1,0 +1,5 @@
+beautifulsoup4~=4.6.0
+Jinja2~=2.9.6
+lxml=~=3.8.0
+Pillow~=4.2.1
+requests~=2.18.4
