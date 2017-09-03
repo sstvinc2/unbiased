@@ -132,9 +132,7 @@ def removeBadStoriesHelper(source, element, badStringList, article_tiers):
     if badStringList is None:
         return
     for tier, articles in enumerate(article_tiers):
-        print(tier, articles)
         for idx, article in enumerate(articles):
-            print(article)
             if article is None:
                 logger.debug("None type found in removeBadStoriesHelper for {}".format(source.name))
                 break
