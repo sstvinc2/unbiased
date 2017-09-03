@@ -5,6 +5,7 @@ import os
 import re
 import urllib.parse
 
+from bs4 import BeautifulSoup
 import requests
 
 from unbiased.unbiasedObjects import *
@@ -818,41 +819,32 @@ def buildABC():
 
 
 def buildFoxNews():
-    url='http://foxnews.com'
-    name='Fox News'
+    url = 'http://foxnews.com'
+    name = 'Fox News'
 
-    #DOWNLOAD HOMEPAGE CONTENT
-    content=urlToContent(url)
-    
-    #get main headline
-    h1=content
-    h1=h1.split('<h1><a href="', 1)[1]
-    h1=h1.split('"', 1)[0]
-    h1s=[h1]
+    # DOWNLOAD HOMEPAGE CONTENT
+    content = urlToContent(url)
+    soup = BeautifulSoup(content, 'lxml')
+
+    # get main headline
+    h1 = soup.find('div', id='big-top')\
+             .find('div', class_='primary')\
+             .find('h1')\
+             .find('a')
+    h1 = h1['href']
+    h1s = [h1]
     h1s = ['http:' + x if x.startswith('//') else x for x in h1s]
 
     #GET SECONDARY HEADLINES
-    h2=content
-    h2s=[]
-    h2=h2.split('<div class="top-stories">', 1)[1]
-    h2=h2.split('<section id="latest"', 1)[0]
-    while '<li data-vr-contentbox=""><a href="' in h2:
-        h2=h2.split('<li data-vr-contentbox=""><a href="', 1)[1]
-        x=h2.split('"', 1)[0]
-        if h1 not in x:
-            h2s.append(x)
+    h2s = soup.find('div', id='big-top').find('div', class_='top-stories').select('li > a')
+    h2s = [x['href'] for x in h2s]
     h2s = ['http:' + x if x.startswith('//') else x for x in h2s]
 
     #GET TERTIARY HEADLINES
-    h3=content
-    h3s=[]
-    h3=h3.split('div id="big-top"', 1)[1]
-    h3=h3.split('<div class="top-stories">', 1)[0]
-    while '<a href="' in h3:
-        h3=h3.split('<a href="', 1)[1]
-        x=h3.split('"', 1)[0]
-        if h1 not in x:
-            h3s.append(x)
+    h3s = []
+    for ul in soup.find('section', id='latest').find_all('ul', recursive=False):
+        for li in ul.find_all('li', recursive=False):
+            h3s.append(li.find('a')['href'])
     h3s = ['http:' + x if x.startswith('//') else x for x in h3s]
 
     h1s, h2s, h3s = removeDuplicates(h1s, h2s, h3s)
