@@ -5,9 +5,8 @@ import logging
 import logging.config
 import time
 
-from unbiased.unbiasedObjects import *
-from unbiased.unbiasedFunctions import *
-from unbiased.parser import *
+from unbiased.unbiasedFunctions import pickStories, pullImage, buildOutput, writeOutputHTML
+from unbiased.sources import get_sources
 
 logger = logging.getLogger('unbiased')
 
@@ -52,6 +51,7 @@ def main():
     parser.add_argument('-l', '--log-dir', help='location to write detailed logs')
     parser.add_argument('-d', '--debug', action='store_true', help='run in debug mode')
     parser.add_argument('-o', '--oneshot', action='store_true', help='run once and exit')
+    parser.add_argument('-s', '--sources', type=lambda x: x.split(','), default=None)
     args = parser.parse_args()
 
     if args.log_dir:
@@ -67,7 +67,7 @@ def main():
     while True:
         logger.info('Starting crawl')
         start = time.time()
-        run(args.webroot)
+        run(args.webroot, args.sources)
         finish = time.time()
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
@@ -77,51 +77,33 @@ def main():
         if sleeptime > 0:
             time.sleep(sleeptime)
 
-def run(webroot):
-    sources = []
+def run(webroot, source_names):
 
-    '''
-    SOURCES TO ADD NEXT:
-    -REUTERS
-    -Town Hall
-    '''
+    logger.debug('Running with webroot="{}" for sources="{}"'.format(webroot, source_names))
 
-    logger.debug('Running with webroot="{}"'.format(webroot))
+    sources = get_sources()
+    print(sources)
+    if source_names is None:
+        sources = sources.values()
+    else:
+        sources = [sources[x] for x in source_names]
 
-    ### These values have to be the second half of the function name
-    ### E.g. Guardian calls buildGuardian(), etc.
-    sourceFnArr = [
-        'Guardian',
-        'TheHill',
-        'NPR',
-        'BBC',
-        'NBC',
-        'CBS',
-        'FoxNews',
-        'WashTimes',
-        'CSM',
-        'ABC',
-    ]
-
-    for source in sourceFnArr:
-        logger.info('Crawling {}'.format(source))
+    built_sources = []
+    for source in sources:
+        logger.info('Crawling {}'.format(source.name))
         tries = 0
         while tries < 3:
             time.sleep(tries)
             try:
-                fn = 'build' + source
-                possibles = globals().copy()
-                possibles.update(locals())
-                method = possibles.get(fn)
-                src = method()
-                sources.append(src)
+                built_sources.append(source.build())
                 break
             except Exception as ex:
                 tries += 1
                 if tries == 3:
-                    logger.error('Build failed. source={} ex={}'.format(source, ex))
+                    logger.error('Build failed. source={} ex={}'.format(source.name, ex))
                 else:
-                    logger.debug('Build failed, retrying. source={} ex={}'.format(source, ex))
+                    logger.debug('Build failed, retrying. source={} ex={}'.format(source.name, ex))
+    sources = tuple(built_sources)
     logger.info('Parsed home pages for: {}'.format([x.name for x in sources]))
 
     top_stories, middle_stories, bottom_stories = pickStories(sources)

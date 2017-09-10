@@ -11,8 +11,6 @@ import urllib.parse
 from PIL import Image
 import requests
 
-from unbiased.unbiasedObjects import *
-
 logger = logging.getLogger('unbiased')
 
 #take in a url and delimiters, return twitter card
@@ -141,69 +139,30 @@ def buildArticle(url, sourceName, encoding=None):#, titleDelStart, titleDelEnd, 
         return None
 
 
+def pick_randoms(story_lists, length, per_source):
+    """
+    Return a randomly chosen list of 'length' stories, picking at
+    most 'per_source' stories from each source.
+    """
+    # TODO: weighting is incorrect if a source has fewer than 'per_source' articles
+    urandom = random.SystemRandom()
+    candidates = []
+    for stories in story_lists:
+        indexes = list(range(len(stories)))
+        urandom.shuffle(indexes)
+        random_indexes = indexes[:per_source]
+        candidates.extend([stories[x] for x in random_indexes])
+    indexes = list(range(len(candidates)))
+    urandom.shuffle(indexes)
+    random_indexes = indexes[:length]
+    return tuple(candidates[x] for x in random_indexes)
+
+
 def pickStories(newsSourceArr):
-    # TODO: refactor to avoid infinite loops
-    #set the random order for sources
-    h1RandomSources=[]
-    guard = 0
-    while len(h1RandomSources)<4:
-        x=random.sample(range(len(newsSourceArr)), 1)[0]
-        if len(newsSourceArr[x].h1Arr)>0:
-            if x not in h1RandomSources:
-                h1RandomSources.append(x)
-        else:
-            logger.debug('No H1 stories in '+newsSourceArr[x].name)
-        guard += 1
-        if guard > 100:
-            return [], [], []
-
-    #For h2s and h3s, select N random sources (can repeat), then
-    #a non-repetitive random article from within
-    h2RandomPairs=[]
-    while len(h2RandomPairs) < 6:
-        x=random.sample(range(len(newsSourceArr)), 1)[0]
-        if len(newsSourceArr[x].h2Arr) > 0:
-            y=random.sample(range(len(newsSourceArr[x].h2Arr)), 1)[0]
-            pair=[x,y]
-            if not pair in h2RandomPairs:
-                h2RandomPairs.append(pair)
-        else:
-            logger.debug('No H2 stories in '+newsSourceArr[x].name)
-
-    h3RandomPairs=[]
-    while len(h3RandomPairs) < 12:
-        x=random.sample(range(len(newsSourceArr)), 1)[0]
-        if len(newsSourceArr[x].h3Arr) > 0:
-            y=random.sample(range(len(newsSourceArr[x].h3Arr)), 1)[0]
-            pair=[x,y]
-            if not pair in h3RandomPairs:
-                h3RandomPairs.append(pair)
-        else:
-            logger.debug('No H3 stories in '+newsSourceArr[x].name)
-
-    # collect articles for each section
-    image_index = 0
-
-    top_stories = []
-    for i in range(len(h1RandomSources)):
-        source=newsSourceArr[h1RandomSources[i]]
-        randomArticle=random.sample(range(len(source.h1Arr)), 1)[0]
-        article=source.h1Arr[randomArticle]
-        top_stories.append(article)
-
-    middle_stories = []
-    for i in range(len(h2RandomPairs)):
-        pair=h2RandomPairs[i]
-        article=newsSourceArr[pair[0]].h2Arr[pair[1]]
-        middle_stories.append(article)
-
-    bottom_stories = []
-    for i in range(len(h3RandomPairs)):
-        pair=h3RandomPairs[i]
-        article=newsSourceArr[pair[0]].h3Arr[pair[1]]
-        bottom_stories.append(article)
-
-    return top_stories, middle_stories, bottom_stories
+    h1s = pick_randoms([x.h1s for x in newsSourceArr], 4, 1)
+    h2s = pick_randoms([x.h2s for x in newsSourceArr], 6, 2)
+    h3s = pick_randoms([x.h3s for x in newsSourceArr], 12, 2)
+    return h1s, h2s, h3s
 
 def buildOutput(top_stories, middle_stories, bottom_stories):
     #read in the template html file
@@ -270,6 +229,8 @@ def pullImage(url, index, webroot, target_width=350, target_height=200):
     # resize if larger
     if target_width * 2 < width or target_height * 2 < height:
         img = img.resize((target_width*2, target_height*2), Image.LANCZOS)
+    # TODO: fill with a neutral color instead of just discarding alpha channel
+    img = img.convert('RGB')
     # TODO: create retina images
     jpg_name = 'img{}.jpg'.format(index)
     out_file = os.path.join(webroot, jpg_name)
