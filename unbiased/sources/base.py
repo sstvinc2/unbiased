@@ -174,8 +174,8 @@ class NewsSource(object):
 
     @classmethod
     def _get_author(cls, soup):
-        for author_tag in ['article:author', 'dc.creator', 'property="author']:
-            author = soup.find(author_tag)
+        for author_tag in ['article:author', 'dc.creator', 'author']:
+            author = soup.find('meta', property=author_tag)
             if author is None:
                 continue
             return author['content']
