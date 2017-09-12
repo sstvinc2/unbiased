@@ -51,9 +51,9 @@ class NewsSource(object):
     @classmethod
     def build(cls):
         h1s, h2s, h3s = cls._fetch_urls()
-        h1s = tuple(cls._fix_url(x) for x in h1s)
-        h2s = tuple(cls._fix_url(x) for x in h2s)
-        h3s = tuple(cls._fix_url(x) for x in h3s)
+        h1s = tuple(cls._normalize_url(x) for x in h1s)
+        h2s = tuple(cls._normalize_url(x) for x in h2s)
+        h3s = tuple(cls._normalize_url(x) for x in h3s)
         h1s, h2s, h3s = cls._remove_duplicates(h1s, h2s, h3s)
         h1s, h2s, h3s = cls._fetch_articles(h1s, h2s, h3s)
         h1s, h2s, h3s = cls._remove_all_bad_stories(h1s, h2s, h3s)
@@ -69,16 +69,14 @@ class NewsSource(object):
         return BeautifulSoup(content, 'lxml')
 
     @classmethod
-    def _fix_url(cls, url, scheme='http'):
+    def _normalize_url(cls, url, scheme='http'):
         """
         Make sure they have a scheme.
-        Trim any query parameters.
+        Trim any query string, params, or fragments.
         """
-        # TODO: proper URL parsing
-        if url.startswith('//'):
-            url = '{}:{}'.format(scheme, x)
-        url = url.split('?')[0]
-        return url
+        url = urllib.parse.urlparse(url)
+        url = (url.scheme or scheme, url.netloc, url.path, '', '', '')
+        return urllib.parse.urlunparse(url)
 
     @classmethod
     def _remove_duplicates(cls, h1s, h2s, h3s):
