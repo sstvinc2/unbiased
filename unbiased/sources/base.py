@@ -86,13 +86,14 @@ class NewsSource(object):
 
     @classmethod
     def _remove_bad_stories(cls, articles, element, filters):
+        # TODO: replace string filters with regex filters
         if filters is None:
             return articles
         new_articles = []
         for article in articles:
             save = True
             for f in filters:
-                if f in getattr(article, element):
+                if getattr(article, element) and f in getattr(article, element):
                     save = False
                     break
             if save:
@@ -127,43 +128,32 @@ class NewsSource(object):
 
     @classmethod
     def _fetch_article(cls, url):
-        #soup = cls._fetch_content(url)
-
         logger.debug(cls.name)
         logger.debug(url)
 
-        url_parts = urllib.parse.urlparse(url)
-        scheme = url_parts.scheme
-
-        # download url
         try:
-            res = requests.get(url)
+            soup = cls._fetch_content(url)
         except Exception as ex:
             logger.debug("""ARTICLE DOWNLOADING ERROR
             SOURCE:\t{}
             URL:\t{}""".format(cls.name, url))
             return None
 
-        if res.status_code == 200:
-            content = res.text
-        else:
-            logger.debug("""ARTICLE DOWNLOADING ERROR
-            SOURCE:\t{}
-            URL:\t{}""".format(cls.name, url))
-            return None
+        url_parts = urllib.parse.urlparse(url)
+        scheme = url_parts.scheme
 
         try:
-            img = cls._get_image(content)
+            img = cls._get_image(soup)
             img = urllib.parse.urlparse(img, scheme=scheme).geturl()
             logger.debug(img)
 
-            title = cls._get_title(content)
+            title = cls._get_title(soup)
             logger.debug(title)
 
-            author = cls._get_author(content)
+            author = cls._get_author(soup)
             logger.debug(author)
 
-            description = cls._get_description(content)
+            description = cls._get_description(soup)
             logger.debug(description)
             description = cls._remove_self_refs(description)
             logger.debug(description)
@@ -176,45 +166,29 @@ class NewsSource(object):
         return Article(cls.name, title, author, description, url, img)
 
     @classmethod
-    def _get_image(cls, content):
-        img = content.split('og:image" content=')[1][1:].split('>')[0]
-        if img[-1] == '/':
-            #because the quote separator could be ' or ",
-            #trim to just before it then lop it off
-            img = img[:-1].strip()
-        img = img[:-1]
-        return img
+    def _get_image(cls, soup):
+        return soup.find('meta', property='og:image')['content']
 
     @classmethod
-    def _get_title(cls, content):
-        title=content.split('og:title" content=')[1][1:].split('>')[0]
-        if title[-1]=='/':
-            title=title[:-1].strip()
-        title=title[:-1]
-        return title
+    def _get_title(cls, soup):
+        return soup.find('meta', property='og:title')['content']
 
     @classmethod
-    def _get_author(cls, content):
-        author = ''
-        authorTags = ['article:author', 'dc.creator', 'property="author']
-        for tag in authorTags:
-            if tag in content:
-                author = content.split(tag+'" content=')[1][1:].split('>')[0]
-                author = author[:-1]
-                break
-        return author
+    def _get_author(cls, soup):
+        for author_tag in ['article:author', 'dc.creator', 'property="author']:
+            author = soup.find(author_tag)
+            if author is None:
+                continue
+            return author['content']
+        return None
 
     @classmethod
-    def _get_description(cls, content):
-        description = content.split('og:description" content=')[1][1:].split('>')[0]
-        if description[-1] == '/':
-            description = description[:-1].strip()
-        description = description[:-1]
-        return description
+    def _get_description(cls, soup):
+        return soup.find('meta', property='og:description')['content']
 
     @classmethod
     def _remove_self_refs(cls, description):
-        description = description.replace(cls.name+"'s", '***')
-        description = description.replace(cls.name+"'", '***')
+        description = description.replace(cls.name + "'s", '***')
+        description = description.replace(cls.name + "'", '***')
         description = description.replace(cls.name, '***')
         return description
