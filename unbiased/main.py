@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
+import io
 import logging
 import logging.config
 import time
 
-from unbiased.unbiasedFunctions import pickStories, pullImage, buildOutput, writeOutputHTML
+from unbiased.unbiasedFunctions import pickStories, pullImage, buildOutput, write_files, write_static_files
 from unbiased.sources import get_sources
 
 logger = logging.getLogger('unbiased')
@@ -111,20 +112,26 @@ def run(webroot, source_names):
     logger.info('Picked middle stories from: {}'.format([x.source for x in middle_stories]))
     logger.info('Picked bottom stories from: {}'.format([x.source for x in bottom_stories]))
 
+    files_to_write = {}
+
     # download images
     img_idx = 0
     for story in top_stories:
-        story.img = pullImage(story.img, img_idx, webroot, 350, 200)
+        story.img, img_jpg = pullImage(story.img, img_idx, webroot, 350, 200)
+        files_to_write[story.img] = img_jpg
         img_idx += 1
     for story in middle_stories:
-        story.img = pullImage(story.img, img_idx, webroot, 150, 100)
+        story.img, img_jpg =  pullImage(story.img, img_idx, webroot, 150, 100)
+        files_to_write[story.img] = img_jpg
         img_idx += 1
 
-    #build the output file HTML
-    outputHTML = buildOutput(top_stories, middle_stories, bottom_stories)
+    # build the output file HTML
+    output_html = buildOutput(top_stories, middle_stories, bottom_stories)
+    output_html = io.BytesIO(output_html.encode('utf8'))
+    files_to_write['index.html'] = output_html
 
-    #print the output file HTML
-    writeOutputHTML(outputHTML, webroot)
+    write_files(files_to_write, webroot)
+    write_static_files(webroot)
 
 if __name__=="__main__":
     main()

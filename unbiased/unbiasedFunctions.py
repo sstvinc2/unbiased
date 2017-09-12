@@ -5,6 +5,7 @@ import os
 import pkgutil
 import random
 import re
+import shutil
 import time
 import urllib.parse
 
@@ -190,12 +191,12 @@ def buildOutput(top_stories, middle_stories, bottom_stories):
     #return updated text
     return html
 
-def writeOutputHTML(outputHTML, outDir):
-    timestamp = time.strftime("%a, %b %-d, %-I:%M%P %Z", time.localtime())
+def write_files(files_to_write, outDir):
+    for name, bytesio in files_to_write.items():
+        with open(os.path.join(outDir, name), 'wb') as fp:
+            shutil.copyfileobj(bytesio, fp)
 
-    with open(os.path.join(outDir, 'index.html'), 'w') as fp:
-        fp.write(outputHTML)
-
+def write_static_files(outDir):
     # copy over static package files
     for filename in ['unbiased.css', 'favicon.ico', 'favicon.png', 'apple-touch-icon.png']:
         data = pkgutil.get_data('unbiased', os.path.join('html_template', filename))
@@ -233,6 +234,8 @@ def pullImage(url, index, webroot, target_width=350, target_height=200):
     img = img.convert('RGB')
     # TODO: create retina images
     jpg_name = 'img{}.jpg'.format(index)
+    jpg_file = io.BytesIO()
     out_file = os.path.join(webroot, jpg_name)
-    img.save(out_file, 'JPEG')
-    return jpg_name
+    img.save(jpg_file, 'JPEG')
+    jpg_file.seek(0)
+    return jpg_name, jpg_file

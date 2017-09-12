@@ -31,7 +31,6 @@ class NewsSource(object):
        of urls, one for each tier
      - override any of the '_get_*()' functions as necessary
     """
-    # TODO: replace all string parsing with bs4
 
     name = None
     shortname = None
