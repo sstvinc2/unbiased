@@ -13,3 +13,4 @@ venv/
 unbiased.egg-info/
 #*
 .#*
+*.swp
