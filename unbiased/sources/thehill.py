@@ -1,4 +1,3 @@
-import urllib
 
 from unbiased.sources.base import NewsSource
 
@@ -17,16 +16,15 @@ class TheHill(NewsSource):
 
         h1 = soup.find('h1', class_='top-story-headline')\
             .find('a')['href']
-        h1 = urllib.parse.urljoin(cls.url, h1)
         h1s = (h1,)
 
         h23s = soup.find('div', class_='section-top-content')\
                   .find_all('div', class_='top-story-item')
         h2s = set([x.h4.a['href'] for x in h23s if 'small' not in x['class']])
-        h2s = tuple(urllib.parse.urljoin(cls.url, x) for x in h2s)
+        h2s = tuple(h2s)
 
         h3s = set([x.h4.a['href'] for x in h23s if 'small' in x['class']])
-        h3s = tuple(urllib.parse.urljoin(cls.url, x) for x in h3s)
+        h3s = tuple(h3s)
 
         return h1s, h2s, h3s
 

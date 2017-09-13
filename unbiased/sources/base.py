@@ -68,13 +68,15 @@ class NewsSource(object):
         return BeautifulSoup(content, 'lxml')
 
     @classmethod
-    def _normalize_url(cls, url, scheme='http'):
+    def _normalize_url(cls, url):
         """
         Make sure they have a scheme.
+        Make sure they have a host.
         Trim any query string, params, or fragments.
         """
+        cls_url = urllib.parse.urlparse(cls.url)
         url = urllib.parse.urlparse(url)
-        url = (url.scheme or scheme, url.netloc, url.path, '', '', '')
+        url = (url.scheme or cls_url.scheme, url.netloc or cls_url.netloc, url.path, '', '', '')
         return urllib.parse.urlunparse(url)
 
     @classmethod

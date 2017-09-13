@@ -1,4 +1,3 @@
-import urllib
 import html
 
 from unbiased.sources.base import NewsSource
