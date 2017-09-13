@@ -110,7 +110,8 @@ class NewsSource(object):
             articles = cls._remove_bad_stories(articles, 'url', cls.bad_urls)
             new_articles.append(articles)
         if len(new_articles[0]) == 0 and len(new_articles[1]) > 0:
-            new_articles[0].append(new_articles[1].pop())
+            new_articles[0] = new_articles[0] + new_articles[1][:1]
+            new_articles[1] = new_articles[1][1:]
         return tuple(tuple(x) for x in new_articles)
 
     @classmethod
