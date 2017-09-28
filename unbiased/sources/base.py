@@ -68,7 +68,7 @@ class NewsSource(object):
         return BeautifulSoup(content, 'lxml')
 
     @classmethod
-    def _normalize_url(cls, url):
+    def _normalize_url(cls, url, keep_query_vars=None):
         """
         Make sure they have a scheme.
         Make sure they have a host.
@@ -76,7 +76,20 @@ class NewsSource(object):
         """
         cls_url = urllib.parse.urlparse(cls.url)
         url = urllib.parse.urlparse(url)
-        url = (url.scheme or cls_url.scheme, url.netloc or cls_url.netloc, url.path, '', '', '')
+        if keep_query_vars is None:
+            query = ''
+        else:
+            query_vars = {}
+            qs = urllib.parse.parse_qs(url.query)
+            for v in keep_query_vars:
+                if v in qs:
+                    query_vars[v] = qs[v]
+            query_pairs = []
+            for k, i in query_vars.items():
+                for v in i:
+                    query_pairs.append('{}={}'.format(k, v))
+            query = '?'.join(query_pairs)
+        url = (url.scheme or cls_url.scheme, url.netloc or cls_url.netloc, url.path, '', query, '')
         return urllib.parse.urlunparse(url)
 
     @classmethod
