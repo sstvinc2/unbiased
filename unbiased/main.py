@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import io
 import logging
 import logging.config
 import time
 
-from unbiased.unbiasedObjects import *
-from unbiased.unbiasedFunctions import *
-from unbiased.parser import *
+from unbiased.util import pickStories, pullImage, buildOutput, write_files, write_static_files
+from unbiased.sources import get_sources
 
 logger = logging.getLogger('unbiased')
 
@@ -52,6 +52,7 @@ def main():
     parser.add_argument('-l', '--log-dir', help='location to write detailed logs')
     parser.add_argument('-d', '--debug', action='store_true', help='run in debug mode')
     parser.add_argument('-o', '--oneshot', action='store_true', help='run once and exit')
+    parser.add_argument('-s', '--sources', type=lambda x: x.split(','), default=None)
     args = parser.parse_args()
 
     if args.log_dir:
@@ -67,7 +68,7 @@ def main():
     while True:
         logger.info('Starting crawl')
         start = time.time()
-        run(args.webroot)
+        run(args.webroot, args.sources, args.debug)
         finish = time.time()
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
@@ -77,51 +78,34 @@ def main():
         if sleeptime > 0:
             time.sleep(sleeptime)
 
-def run(webroot):
-    sources = []
+def run(webroot, source_names, debug_mode=False):
 
-    '''
-    SOURCES TO ADD NEXT:
-    -REUTERS
-    -Town Hall
-    '''
+    logger.debug('Running with webroot="{}" for sources="{}"'.format(webroot, source_names))
 
-    logger.debug('Running with webroot="{}"'.format(webroot))
+    sources = get_sources()
+    if source_names is None:
+        sources = sources.values()
+    else:
+        sources = [sources[x] for x in source_names]
 
-    ### These values have to be the second half of the function name
-    ### E.g. Guardian calls buildGuardian(), etc.
-    sourceFnArr = [
-        'Guardian',
-        'TheHill',
-        'NPR',
-        'BBC',
-        'NBC',
-        'CBS',
-        'FoxNews',
-        'WashTimes',
-        'CSM',
-        'ABC',
-    ]
-
-    for source in sourceFnArr:
-        logger.info('Crawling {}'.format(source))
+    built_sources = []
+    for source in sources:
+        logger.info('Crawling {}'.format(source.name))
         tries = 0
         while tries < 3:
             time.sleep(tries)
             try:
-                fn = 'build' + source
-                possibles = globals().copy()
-                possibles.update(locals())
-                method = possibles.get(fn)
-                src = method()
-                sources.append(src)
+                built_sources.append(source.build())
                 break
             except Exception as ex:
+                if debug_mode is True:
+                    raise
                 tries += 1
                 if tries == 3:
-                    logger.error('Build failed. source={} ex={}'.format(source, ex))
+                    logger.error('Build failed. source={} ex={}'.format(source.name, ex))
                 else:
-                    logger.debug('Build failed, retrying. source={} ex={}'.format(source, ex))
+                    logger.debug('Build failed, retrying. source={} ex={}'.format(source.name, ex))
+    sources = tuple(built_sources)
     logger.info('Parsed home pages for: {}'.format([x.name for x in sources]))
 
     top_stories, middle_stories, bottom_stories = pickStories(sources)
@@ -129,20 +113,26 @@ def run(webroot):
     logger.info('Picked middle stories from: {}'.format([x.source for x in middle_stories]))
     logger.info('Picked bottom stories from: {}'.format([x.source for x in bottom_stories]))
 
+    files_to_write = {}
+
     # download images
     img_idx = 0
     for story in top_stories:
-        story.img = pullImage(story.img, img_idx, webroot, 350, 200)
+        story.img, img_jpg = pullImage(story.img, img_idx, webroot, 350, 200)
+        files_to_write[story.img] = img_jpg
         img_idx += 1
     for story in middle_stories:
-        story.img = pullImage(story.img, img_idx, webroot, 150, 100)
+        story.img, img_jpg =  pullImage(story.img, img_idx, webroot, 150, 100)
+        files_to_write[story.img] = img_jpg
         img_idx += 1
 
-    #build the output file HTML
-    outputHTML = buildOutput(top_stories, middle_stories, bottom_stories)
+    # build the output file HTML
+    output_html = buildOutput(top_stories, middle_stories, bottom_stories)
+    output_html = io.BytesIO(output_html.encode('utf8'))
+    files_to_write['index.html'] = output_html
 
-    #print the output file HTML
-    writeOutputHTML(outputHTML, webroot)
+    write_files(files_to_write, webroot)
+    write_static_files(webroot)
 
 if __name__=="__main__":
     main()
