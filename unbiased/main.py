@@ -68,7 +68,7 @@ def main():
     while True:
         logger.info('Starting crawl')
         start = time.time()
-        run(args.webroot, args.sources)
+        run(args.webroot, args.sources, args.debug)
         finish = time.time()
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
@@ -78,12 +78,11 @@ def main():
         if sleeptime > 0:
             time.sleep(sleeptime)
 
-def run(webroot, source_names):
+def run(webroot, source_names, debug_mode=False):
 
     logger.debug('Running with webroot="{}" for sources="{}"'.format(webroot, source_names))
 
     sources = get_sources()
-    print(sources)
     if source_names is None:
         sources = sources.values()
     else:
@@ -99,6 +98,8 @@ def run(webroot, source_names):
                 built_sources.append(source.build())
                 break
             except Exception as ex:
+                if debug_mode is True:
+                    raise
                 tries += 1
                 if tries == 3:
                     logger.error('Build failed. source={} ex={}'.format(source.name, ex))
