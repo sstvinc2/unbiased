@@ -18,7 +18,6 @@ class ABC(NewsSource):
         h1 = soup.find('article', class_='hero')\
             .find('div', class_='caption-wrapper').h1.a['href']
         h1s = (h1,)
-        print(h1)
 
         # get secondary headlines
         h2s = soup.find('div', id='row-2')\
