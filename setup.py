@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="unbiased",
-    version="1",
+    version="4",
     packages=['unbiased'],
     package_data={
         'unbiased': [

@@ -3,6 +3,7 @@ import pkgutil
 
 from unbiased.sources.base import NewsSource
 
+
 def get_sources():
     for loader, name, is_pkg in pkgutil.walk_packages(__path__):
         if name != 'base':

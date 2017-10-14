@@ -4,6 +4,7 @@ import argparse
 import io
 import logging
 import logging.config
+import os
 import time
 
 from unbiased.util import pickStories, pullImage, buildOutput, write_files, write_static_files
@@ -46,6 +47,7 @@ logging_config = {
     }
 }
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('webroot', help='location to write html output')
@@ -77,6 +79,7 @@ def main():
             break
         if sleeptime > 0:
             time.sleep(sleeptime)
+
 
 def run(webroot, source_names, debug_mode=False):
 
@@ -122,7 +125,7 @@ def run(webroot, source_names, debug_mode=False):
         files_to_write[story.img] = img_jpg
         img_idx += 1
     for story in middle_stories:
-        story.img, img_jpg =  pullImage(story.img, img_idx, webroot, 150, 100)
+        story.img, img_jpg = pullImage(story.img, img_idx, webroot, 150, 100)
         files_to_write[story.img] = img_jpg
         img_idx += 1
 
@@ -134,5 +137,6 @@ def run(webroot, source_names, debug_mode=False):
     write_files(files_to_write, webroot)
     write_static_files(webroot)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

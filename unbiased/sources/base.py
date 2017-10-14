@@ -1,5 +1,3 @@
-import collections
-import html
 import logging
 import urllib
 
@@ -7,6 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 
 logger = logging.getLogger('unbiased')
+
 
 class Article(object):
 
@@ -20,6 +19,7 @@ class Article(object):
 
     def __repr__(self):
         return 'Article({}, {}, {}, {}, {}, {})'.format(self.source, self.title, self.author, self.description, self.url, self.img)
+
 
 class NewsSource(object):
     """
