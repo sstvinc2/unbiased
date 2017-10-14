@@ -50,6 +50,7 @@ class NewsSource(object):
     @classmethod
     def build(cls):
         h1s, h2s, h3s = cls._fetch_urls()
+        logger.debug('Fetched {} h1s, {} h2s, {} h3s'.format(len(h1s), len(h2s), len(h3s)))
         h1s = tuple(cls._normalize_url(x) for x in h1s)
         h2s = tuple(cls._normalize_url(x) for x in h2s)
         h3s = tuple(cls._normalize_url(x) for x in h3s)
