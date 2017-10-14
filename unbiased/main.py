@@ -6,7 +6,7 @@ import logging
 import logging.config
 import time
 
-from unbiased.unbiasedFunctions import pickStories, pullImage, buildOutput, write_files, write_static_files
+from unbiased.util import pickStories, pullImage, buildOutput, write_files, write_static_files
 from unbiased.sources import get_sources
 
 logger = logging.getLogger('unbiased')
