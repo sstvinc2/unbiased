@@ -61,7 +61,7 @@ class NewsSource(object):
 
     @classmethod
     def _fetch_content(cls, url):
-        res = requests.get(url)
+        res = requests.get(url, timeout=3)
         if res.status_code == 200:
             content = res.text
         else:

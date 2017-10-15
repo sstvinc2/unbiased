@@ -79,7 +79,7 @@ def write_static_files(outDir):
 
 
 def pullImage(url, index, webroot, target_width=350, target_height=200):
-    res = requests.get(url)
+    res = requests.get(url, timeout=3)
     if res.status_code == 200:
         content = res.content
     else:
