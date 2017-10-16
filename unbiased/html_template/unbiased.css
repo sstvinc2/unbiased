@@ -52,6 +52,12 @@ hr {
     color: #cc6;
 }
 
+#timestamp a {
+    color: inherit;
+    text-decoration: inherit;
+    cursor: inherit;
+}
+
 #top-stories {
     max-width: 900px;
     display: flex;

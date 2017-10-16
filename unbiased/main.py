@@ -36,10 +36,15 @@ logging_config = {
             'maxBytes': 1024 * 1024,
             'backupCount': 3,
         },
+        'web': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'file',
+        },
     },
     'loggers': {
         'unbiased': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file', 'web'],
         },
     },
     'root': {
@@ -64,13 +69,17 @@ def main():
         del logging_config['handlers']['file']
     if args.debug:
         logging_config['handlers']['console']['level'] = 'DEBUG'
+    web_log_stream = io.StringIO()
+    logging_config['handlers']['web']['stream'] = web_log_stream
     logging.config.dictConfig(logging_config)
 
     crawl_frequency = 600
     while True:
+        web_log_stream.seek(0)
+        web_log_stream.truncate()
         logger.info('Starting crawl')
         start = time.time()
-        run(args.webroot, args.sources, args.debug)
+        run(args.webroot, args.sources, web_log_stream, args.debug)
         finish = time.time()
         runtime = finish - start
         sleeptime = crawl_frequency - runtime
@@ -81,7 +90,7 @@ def main():
             time.sleep(sleeptime)
 
 
-def run(webroot, source_names, debug_mode=False):
+def run(webroot, source_names, web_log_stream, debug_mode=False):
 
     logger.debug('Running with webroot="{}" for sources="{}"'.format(webroot, source_names))
 
@@ -133,6 +142,7 @@ def run(webroot, source_names, debug_mode=False):
     output_html = buildOutput(top_stories, middle_stories, bottom_stories)
     output_html = io.BytesIO(output_html.encode('utf8'))
     files_to_write['index.html'] = output_html
+    files_to_write['log.txt'] = io.BytesIO(web_log_stream.getvalue().encode('utf8'))
 
     write_files(files_to_write, webroot)
     write_static_files(webroot)
