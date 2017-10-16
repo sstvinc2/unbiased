@@ -2,8 +2,8 @@ from setuptools import setup
 
 setup(
     name="unbiased",
-    version="4",
-    packages=['unbiased'],
+    version="5",
+    packages=['unbiased', 'unbiased.sources'],
     package_data={
         'unbiased': [
             'html_template/*.html',
