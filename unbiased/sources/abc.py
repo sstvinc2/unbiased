@@ -27,7 +27,7 @@ class ABC(NewsSource):
         # get tertiary headlines
         h3s = soup.find('div', id='row-1')\
             .find('article', class_='headlines')\
-            .find('div', id='tab-content')\
+            .find('ul', class_='headlines-ul')\
             .find_all('li', class_=['story', 'wirestory'])
         h3s = tuple(x.div.h1.a['href'] for x in h3s)
 
