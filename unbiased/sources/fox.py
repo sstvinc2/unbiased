@@ -20,22 +20,16 @@ class Fox(NewsSource):
         """
         soup = cls._fetch_content(cls.url)
 
-        # get primary headline
-        h1 = soup.find('div', id='big-top')\
-                 .find('div', class_='primary')\
-                 .find('h1')\
-                 .find('a')['href']
-        h1s = (h1,)
 
-        # get secondary headlines
-        h2s = soup.find('div', id='big-top').find('div', class_='top-stories').select('li > a')
-        h2s = tuple(x['href'] for x in h2s)
+        primary = soup.find('div', class_='main-primary')\
+                .find('div', class_='collection-spotlight')\
+                .find_all('article', class_='article')
+        h1s = (primary[0].find('header', class_='info-header').find('a')['href'],)
+        h2s = tuple(x.find('header', class_='info-header').find('a')['href'] for x in primary[1:])
 
-        # get tertiary headlines
-        h3s = []
-        for ul in soup.find('section', id='latest').find_all('ul', recursive=False):
-            for li in ul.find_all('li', recursive=False):
-                h3s.append(li.find('a')['href'])
-        h3s = tuple(h3s)
+        h3s = soup.find('div', class_='main-primary')\
+                .find('div', class_='collection-article-list')\
+                .find_all('article', class_='article')
+        h3s = tuple(x.find('header', class_='info-header').find('h2', class_='title').find('a')['href'] for x in h3s)
 
         return h1s, h2s, h3s
