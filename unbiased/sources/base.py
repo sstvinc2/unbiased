@@ -50,13 +50,13 @@ class NewsSource(object):
     @classmethod
     def build(cls):
         h1s, h2s, h3s = cls._fetch_urls()
-        logger.info('Fetched {} h1s, {} h2s, {} h3s'.format(len(h1s), len(h2s), len(h3s)))
         h1s = tuple(cls._normalize_url(x) for x in h1s)
         h2s = tuple(cls._normalize_url(x) for x in h2s)
         h3s = tuple(cls._normalize_url(x) for x in h3s)
         h1s, h2s, h3s = cls._remove_duplicates(h1s, h2s, h3s)
         h1s, h2s, h3s = cls._fetch_articles(h1s, h2s, h3s)
         h1s, h2s, h3s = cls._remove_all_bad_stories(h1s, h2s, h3s)
+        logger.info('Fetched {} h1s, {} h2s, {} h3s'.format(len(h1s), len(h2s), len(h3s)))
         return cls(h1s, h2s, h3s)
 
     @classmethod

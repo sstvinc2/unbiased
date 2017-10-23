@@ -137,6 +137,7 @@ def run(webroot, source_names, web_log_stream, debug_mode=False):
         story.img, img_jpg = pullImage(story.img, img_idx, webroot, 150, 100)
         files_to_write[story.img] = img_jpg
         img_idx += 1
+    logger.info('Downloaded images')
 
     # build the output file HTML
     output_html = buildOutput(top_stories, middle_stories, bottom_stories)
