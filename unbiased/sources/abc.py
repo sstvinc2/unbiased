@@ -6,6 +6,8 @@ class ABC(NewsSource):
     shortname = 'ABC'
     url = 'http://abcnews.go.com/'
 
+    bad_urls = ['/column']
+
     @classmethod
     def _fetch_urls(cls):
         """
